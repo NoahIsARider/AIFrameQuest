@@ -1,0 +1,260 @@
+[
+  {
+    "image": "../firstFaissTestProgram/images/校服1.png",
+    "label": [
+      "AI绘图"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/礼服1.jpg",
+    "label": [
+      "AI绘图"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/680269.png",
+    "label": [
+      "日奈"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/295487.png",
+    "label": [
+      "忧"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/截屏2025-05-13 23.26.00.png",
+    "label": [
+      "桃"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/不知火.jpg",
+    "label": [
+      "不知火"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/860631.jpg",
+    "label": [
+      "日奈"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/mika壁纸高清.png",
+    "label": [
+      "未花"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/彼岸花.png",
+    "label": [
+      "彼岸花"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/月下雷鸣.png",
+    "label": [
+      "雷狼龙"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/截屏2025-05-13 23.25.35.png",
+    "label": [
+      "佳代子"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/截屏2025-05-13 23.32.11.png",
+    "label": [
+      "日奈"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/332310.png",
+    "label": [
+      "诺亚"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/🚫💈.jpeg",
+    "label": [
+      "梓"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/龙结晶之地.png",
+    "label": [
+      "龙结晶之地",
+      "游戏",
+      "风景"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/旗袍1.png",
+    "label": [
+      "AI绘图"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/鸟居.png",
+    "label": [
+      "风景",
+      "鸟居",
+      "日式"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/冰呪龙.png",
+    "label": [
+      "冰呪龙",
+      "怪物猎人"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/58895.png",
+    "label": [
+      "未花"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/截屏2025-05-13 23.29.30.png",
+    "label": [
+      "晴奈"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/截屏2025-05-13 23.30.04.png",
+    "label": [
+      "日奈"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/hina.jpg",
+    "label": [
+      "日奈"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/截屏2025-05-13 23.24.55.png",
+    "label": [
+      "日奈"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/510726.png",
+    "label": [
+      "日奈"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/雪乃.png",
+    "label": [
+      "雪乃"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/264564.png",
+    "label": [
+      "日奈"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/截屏2025-05-13 23.26.42.png",
+    "label": [
+      "圣娅"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/mika壁纸.jpg",
+    "label": [
+      "未花"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/截屏2025-05-13 23.27.00.png",
+    "label": [
+      "梓"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/冬装1.png",
+    "label": [
+      "AI绘图"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/空洞骑士.png",
+    "label": [
+      "空洞骑士"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/截屏2025-05-13 23.24.23.png",
+    "label": [
+      "日奈"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/292697.png",
+    "label": [
+      "佳代子"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/洛天依横向壁纸.jpg",
+    "label": [
+      "洛天依"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/休闲服2.png",
+    "label": [
+      "AI绘图"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/query.jpg",
+    "label": [
+      "日奈"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/截屏2025-05-13 23.28.35.png",
+    "label": [
+      "优香"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/休闲服1.png",
+    "label": [
+      "AI绘图"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/687241.png",
+    "label": [
+      "日奈"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/截屏2025-05-13 23.33.14.png",
+    "label": [
+      "日奈"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/787042.png",
+    "label": [
+      "日奈"
+    ]
+  },
+  {
+    "image": "../firstFaissTestProgram/images/冬季的斯洛文尼亚布莱德湖.jpeg",
+    "label": [
+      "风景",
+      "城堡"
+    ]
+  }
+]

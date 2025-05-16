@@ -1,0 +1,10 @@
+faiss-cpu
+torch 
+torchvision
+ftfy 
+regex 
+tqdm
+git+https://githubfast.com/openai/CLIP.git
+matplotlib
+numpy
+pillow

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ term }} - AIFrameQuest</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            padding-top: 2rem;
+            background-color: #f8f9fa;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .content-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        .image-gallery {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        .gallery-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 5px;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .gallery-controls {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+        .gallery-control {
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 1rem;
+            cursor: pointer;
+            border-radius: 50%;
+            margin: 0 1rem;
+            transition: background-color 0.3s;
+        }
+        .gallery-control:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+        .gallery-image:hover {
+            transform: scale(1.05);
+        }
+        .comment-item {
+            border-bottom: 1px solid #eee;
+            padding: 1rem 0;
+        }
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+        .rating {
+            color: #ffc107;
+        }
+        .comment-form {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #eee;
+        }
+        .average-rating {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AIFrameQuest {{ term }}</h1>
+            <p class="lead">View images and comments for this term</p>
+            <div class="d-flex justify-content-center gap-2 mb-3">
+                <a href="/" class="btn btn-outline-primary">Back to Home</a>
+                <a href="/terms" class="btn btn-outline-secondary">All Terms</a>
+                {% if user %}
+                <a href="/logout" class="btn btn-outline-danger">Logout</a>
+                {% else %}
+                <a href="/login" class="btn btn-outline-success">Login</a>
+                <a href="/register" class="btn btn-outline-info">Register</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="content-container">
+            <h2>Images</h2>
+            {% if images %}
+            <div class="image-gallery">
+                {% for image in images %}
+                <img src="/images/{{ image }}" alt="{{ term }}" class="gallery-image" style="display: none;">
+                {% endfor %}
+                <div class="gallery-controls">
+                    <button class="gallery-control prev-btn"><i class="fas fa-chevron-left"></i></button>
+                    <button class="gallery-control next-btn"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+            <div class="lightbox">
+                <span class="lightbox-close">&times;</span>
+                <img src="" alt="Full size image">
+            </div>
+            {% else %}
+            <p class="text-center">No images found for this term.</p>
+            {% endif %}
+
+            <h2>Comments and Ratings</h2>
+            <div class="average-rating">
+                <span>Average Rating: </span>
+                <span class="rating">
+                    {% set avg_rating = term_data.average_rating|round(1, 'common') %}
+                    {% for i in range(5) %}
+                        {% if i < avg_rating|int %}
+                            <i class="fas fa-star"></i>
+                        {% elif i == avg_rating|int and avg_rating != avg_rating|int %}
+                            <i class="fas fa-star-half-alt"></i>
+                        {% else %}
+                            <i class="far fa-star"></i>
+                        {% endif %}
+                    {% endfor %}
+                    ({{ avg_rating }})
+                </span>
+            </div>
+
+            {% if term_data.comments %}
+            <div class="comments-list">
+                {% for comment in term_data.comments %}
+                <div class="comment-item">
+                    <div class="d-flex justify-content-between">
+                        <h5>{{ comment.nickname }}</h5>
+                        <div class="rating">
+                            {% for i in range(5) %}
+                                {% if i < comment.rating %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <p>{{ comment.comment }}</p>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p>No comments yet. Be the first to comment!</p>
+            {% endif %}
+
+            {% if user %}
+            <div class="comment-form">
+                <h3>Add Your Comment</h3>
+                <form action="/add_comment" method="post">
+                    <input type="hidden" name="term" value="{{ term }}">
+                    <div class="mb-3">
+                        <label for="rating" class="form-label">Rating</label>
+                        <select class="form-select" id="rating" name="rating" required>
+                            <option value="" selected disabled>Select a rating</option>
+                            <option value="5">5 - Excellent</option>
+                            <option value="4">4 - Very Good</option>
+                            <option value="3">3 - Good</option>
+                            <option value="2">2 - Fair</option>
+                            <option value="1">1 - Poor</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="comment" class="form-label">Your Comment</label>
+                        <textarea class="form-control" id="comment" name="comment" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Comment</button>
+                </form>
+            </div>
+            {% else %}
+            <div class="alert alert-info mt-4">
+                <p>Please <a href="/login">login</a> to add your comment and rating.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const gallery = document.querySelector('.image-gallery');
+            const images = Array.from(gallery.getElementsByClassName('gallery-image'));
+            const prevBtn = gallery.querySelector('.prev-btn');
+            const nextBtn = gallery.querySelector('.next-btn');
+            const lightbox = document.querySelector('.lightbox');
+            const lightboxImg = lightbox.querySelector('img');
+            const lightboxClose = lightbox.querySelector('.lightbox-close');
+            let currentIndex = 0;
+    
+            function showImage(index) {
+                images.forEach(img => img.style.display = 'none');
+                images[index].style.display = 'block';
+            }
+    
+            function nextImage() {
+                currentIndex = (currentIndex + 1) % images.length;
+                showImage(currentIndex);
+            }
+    
+            function prevImage() {
+                currentIndex = (currentIndex - 1 + images.length) % images.length;
+                showImage(currentIndex);
+            }
+    
+            nextBtn.addEventListener('click', nextImage);
+            prevBtn.addEventListener('click', prevImage);
+    
+            images.forEach(img => {
+                img.addEventListener('click', () => {
+                    lightboxImg.src = img.src;
+                    lightbox.style.display = 'flex';
+                });
+            });
+    
+            lightboxClose.addEventListener('click', () => {
+                lightbox.style.display = 'none';
+            });
+    
+            lightbox.addEventListener('click', (e) => {
+                if (e.target === lightbox) {
+                    lightbox.style.display = 'none';
+                }
+            });
+    
+            if (images.length > 0) {
+                showImage(0);
+            }
+        });
+    </script>
+</body>
+</html>

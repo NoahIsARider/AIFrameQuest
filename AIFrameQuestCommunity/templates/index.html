@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIFrameQuest</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #f8f9fa;
+            --text-color: #2c3e50;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            padding-top: 3rem;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .header h1 {
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .upload-container, .results-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 2.5rem;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2.5rem;
+            transition: var(--transition);
+        }
+
+        .upload-container:hover, .results-container:hover {
+            transform: translateY(-5px);
+        }
+
+        .result-item {
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .result-item:hover {
+            transform: scale(1.02);
+            box-shadow: var(--box-shadow);
+        }
+
+        .result-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+        }
+        
+        .query-image {
+            max-width: 100%;
+            height: 300px;
+            object-fit: contain;
+            border-radius: var(--border-radius);
+            margin: 0 auto;
+            display: block;
+        }
+        
+        .loading {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin: 2rem auto;
+            text-align: center;
+        }
+
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            cursor: pointer;
+        }
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90vh;
+            margin: auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+    </style>
+</head>
+<body>
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-close">&times;</span>
+        <img id="lightbox-img" src="" alt="Full size image">
+    </div>
+    <div class="container">
+        <div class="header">
+            <h1>AIFrameQuest</h1>
+            <p class="lead">Upload an image to find similar images in our database</p>
+            <div class="d-flex justify-content-center gap-3 mb-4">
+                <a href="/terms" class="btn btn-outline-primary px-4 py-2">Browse Terms</a>
+                <a href="/logout" class="btn btn-outline-danger px-4 py-2">Logout</a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <div class="upload-container">
+                    <form id="upload-form" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="image-upload" class="form-label">Choose an image</label>
+                            <input class="form-control" type="file" id="image-upload" name="image" accept="image/*" required>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg py-3">Search Similar Images</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="loading" id="loading" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p>Processing your image...</p>
+        </div>
+
+        <div id="query-container" style="display: none;" class="text-center mb-4">
+            <h3>Your Query Image</h3>
+            <img id="query-image" class="query-image" src="" alt="Query Image">
+        </div>
+
+        <div id="results-container" style="display: none;">
+            <h3 class="mb-4">Similar Images</h3>
+            <div class="row" id="results-grid"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Function to show image in lightbox
+        function showInLightbox(imgSrc) {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            
+            lightboxImg.src = imgSrc;
+            lightbox.style.display = 'block';
+        }
+        
+        // Close lightbox when clicking on it or the close button
+        document.getElementById('lightbox').addEventListener('click', function() {
+            this.style.display = 'none';
+        });
+        
+        document.querySelector('.lightbox-close').addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.getElementById('lightbox').style.display = 'none';
+        });
+        
+        // Prevent closing lightbox when clicking on the image itself
+        document.getElementById('lightbox-img').addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+        
+        // Show preview of uploaded image before search
+        document.getElementById('image-upload').addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const queryImage = document.getElementById('query-image');
+                    queryImage.src = e.target.result;
+                    document.getElementById('query-container').style.display = 'block';
+                    
+                    // Make the preview image clickable to show in lightbox
+                    queryImage.style.cursor = 'pointer';
+                    queryImage.onclick = function() {
+                        showInLightbox(this.src);
+                    };
+                }
+                
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+        
+        document.getElementById('upload-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('image-upload');
+            if (!fileInput.files.length) {
+                alert('Please select an image to upload');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+            
+            // Show loading spinner
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('query-container').style.display = 'none';
+            document.getElementById('results-container').style.display = 'none';
+            
+            fetch('/search', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Hide loading spinner
+                document.getElementById('loading').style.display = 'none';
+                
+                // Display query image
+                const queryImage = document.getElementById('query-image');
+                queryImage.src = `/uploads/${data.query_image}`;
+                document.getElementById('query-container').style.display = 'block';
+                
+                // Display results
+                const resultsGrid = document.getElementById('results-grid');
+                resultsGrid.innerHTML = '';
+                
+                data.results.forEach(result => {
+                    const col = document.createElement('div');
+                    col.className = 'col-md-3 col-sm-6 result-item';
+                    
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    
+                    const img = document.createElement('img');
+                    img.className = 'result-image';
+                    img.src = `/images/${result.image}`;
+                    img.alt = result.image;
+                    
+                    // Make result images clickable to show in lightbox
+                    img.addEventListener('click', function() {
+                        showInLightbox(this.src);
+                    });
+                    
+                    const cardBody = document.createElement('div');
+                    cardBody.className = 'card-body';
+                    
+                    // Display the term with a link to the term page
+                    if (result.term) {
+                        const term = document.createElement('h6');
+                        term.className = 'card-title';
+                        
+                        const termLink = document.createElement('a');
+                        termLink.href = `/term/${result.term}`;
+                        termLink.textContent = result.term;
+                        termLink.className = 'text-decoration-none';
+                        
+                        term.appendChild(termLink);
+                        cardBody.appendChild(term);
+                    }
+                    
+                    const distance = document.createElement('p');
+                    distance.className = 'card-text';
+                    distance.textContent = `Distance: ${result.distance.toFixed(4)}`;
+                    
+                    cardBody.appendChild(distance);
+                    card.appendChild(img);
+                    card.appendChild(cardBody);
+                    col.appendChild(card);
+                    resultsGrid.appendChild(col);
+                });
+                
+                document.getElementById('results-container').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('loading').style.display = 'none';
+                alert('An error occurred while processing your request. Please try again.');
+            });
+        });
+    </script>
+</body>
+</html>
