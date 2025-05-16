@@ -72,7 +72,8 @@ cd FaissSearch
 conda create -n AIFrameQuest python=3.12
 conda activate AIFrameQuest
 
-conda install faiss-cpu -c pytorch
+# 安装faiss库
+conda install -c conda-forge faiss-cpu
 
 # 安装其他依赖
 pip install -r requirements.txt
