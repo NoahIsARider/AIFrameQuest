@@ -72,8 +72,7 @@ cd FaissSearch
 conda create -n AIFrameQuest python=3.12
 conda activate AIFrameQuest
 
-# 安装PyTorch和CUDA（根据您的CUDA版本选择）
-conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
+conda install faiss-cpu -c pytorch
 
 # 安装其他依赖
 pip install -r requirements.txt
