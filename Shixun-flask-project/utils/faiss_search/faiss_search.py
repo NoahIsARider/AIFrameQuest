@@ -11,8 +11,8 @@ import glob
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
 # Configuration
-IMAGE_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'images')
-UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'static', 'uploads')
+IMAGE_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'images')
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'static', 'uploads')
 # Use a simple ASCII path for the index file to avoid issues with non-ASCII characters
 INDEX_PATH = os.path.join('D:\\', 'faiss_index.index')
 TOP_K = 10  # Number of similar images to retrieve
@@ -163,7 +163,7 @@ def search_similar_images(query_features, index, image_files, k=TOP_K):
     for i, idx in enumerate(indices[0]):
         if idx < len(image_files):
             results.append({
-                'image': os.path.basename(image_files[idx]),
+                'image': f'/static/uploads/{os.path.basename(image_files[idx])}',
                 'distance': float(distances[0][i])
             })
     

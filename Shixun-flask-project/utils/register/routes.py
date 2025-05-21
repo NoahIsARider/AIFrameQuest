@@ -49,24 +49,23 @@ def login():
 
 @auth_bp.route('/api/upload', methods=['POST'])
 def upload_image():
-    """图片上传接口"""
-    if 'image' not in request.files:
-        return jsonify({'status': 'error', 'message': '未检测到文件'}), 400
-    file = request.files['image']
-    if file.filename == '':
-        return jsonify({'status': 'error', 'message': '未选择文件'}), 400
+    try:
+        if 'image' not in request.files:
+            return jsonify({'error': 'No image uploaded'}), 400
 
-    # 获取文件扩展名
-    ext = os.path.splitext(file.filename)[1]
-    # 用时间戳重命名，防止中文丢失
-    filename = f"{int(time.time() * 1000)}{ext}"
-    upload_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'static', 'uploads')
-    os.makedirs(upload_folder, exist_ok=True)
-    file_path = os.path.join(upload_folder, filename)
-    file.save(file_path)
+        file = request.files['image']
+        if file.filename == '':
+            return jsonify({'error': 'No image selected'}), 400
 
-    # 构造图片访问URL（假设你的 Flask 静态目录为 static）
-    url = f'/static/uploads/{filename}'
+        # Process the search request using the faiss_search module
+        result = process_search_request(file)
 
-    return jsonify({'status': 'success', 'url': url})
-    # -------------------------------------------------
+        # Check if there was an error
+        if isinstance(result, tuple) and len(result) == 2 and isinstance(result[0], dict) and 'error' in result[0]:
+            return jsonify(result[0]), result[1]
+
+        return jsonify(result)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': f'后端异常: {str(e)}'}), 500

@@ -89,17 +89,22 @@ const goToResult = async () => {
   }
   const formData = new FormData()
   // 只取第一个文件的原始文件对象
-  formData.append('image', fileList.value[0].raw)
+// 检查 fileList 中第一个文件的 raw 属性是否存在，避免传递 undefined
+if (fileList.value[0] && fileList.value[0].raw) {
+  formData.append('image', fileList.value[0].raw);
+} else {
+  ElMessage.error('未找到有效的上传文件，请重新上传');
+  return;
+}
   try {
     const res = await axios.post('/api/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     })
     // imageUrl.value = res.data.url
-    router.push('/result')
+    router.push({ path: '/result', query: { result: JSON.stringify(res.data) } })
   } catch (err) {
     alert('上传失败')
   }
-  router.push('/result')
 }
 
 </script>

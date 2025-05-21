@@ -6,5 +6,5 @@ app = create_app()
 CORS(app)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5050) 
     initialize_index() # 初始化faiss索引
+    app.run(debug=True, port=5050)
