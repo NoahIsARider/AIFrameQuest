@@ -1,18 +1,19 @@
 <template>
-  <el-container class="result-page">
+  <el-container class="result-container">
+    <el-header class="header">相似图片搜索结果</el-header>
     <el-main>
       <el-row :gutter="20">
-        <!-- 图片展示区域 -->
-        <el-col :span="24">
-          <el-card class="img-card">
-            <div class="section-title">搜索图片</div>
-            <el-image
-              style="width: 100%; max-width: 800px; max-height: 600px; border-radius: 10px; object-fit: contain; margin: 0 auto; display: block;"
-              :src="imgUrl"
-              fit="cover"
-            />
-            <div class="img-desc" style="text-align: center; margin-top: 16px;">来自 {{ imgDesc }}</div>
-          </el-card>
+        <el-col :span="12">
+          <h3>查询图片</h3>
+          <el-image :src="queryImage" class="query-img" fit="contain"></el-image>
+        </el-col>
+        <el-col :span="12">
+          <h3>相似图片（前10）</h3>
+          <el-row :gutter="10">
+            <el-col :span="8" v-for="(img, index) in similarImages" :key="index">
+              <el-image :src="img" class="similar-img" fit="cover"></el-image>
+            </el-col>
+          </el-row>
         </el-col>
       </el-row>
     </el-main>
@@ -20,39 +21,46 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import { useRoute } from 'vue-router'
-import imageUrl from '@/assets/images/image.png'
+import { onMounted, ref } from 'vue'
+import axios from 'axios'
+import { ElMessage } from 'element-plus'
 
-import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+const queryImage = ref('')
+const similarImages = ref([])
 
 const route = useRoute()
-const resultData = ref(JSON.parse(route.query.result || '{}'))
+const resultData = JSON.parse(route.query.result)
 
-const imgUrl = ref(resultData.value.results?.[0]?.image || '') // 使用后端返回的image字段
-const imgDesc = ref(resultData.value.imgDesc) // 直接使用后端返回的图片描述
-
+onMounted(() => {
+  // 拼接查询图片的后端接口地址
+  queryImage.value = `/api/static/uploads/${resultData.query_image}`
+  // 拼接前10相似图片的后端接口地址（假设results数组按相似度排序）
+  similarImages.value = resultData.results.slice(0, 10).map(item => `/api/images/${item.image}`)
+})
 </script>
 
 <style scoped>
-.result-page {
-  background: #f7f8fa;
+.result-container {
   min-height: 100vh;
+  background: #f5f7fa;
 }
-.section-title {
-  font-weight: bold;
-  font-size: 1.1rem;
-  margin-bottom: 12px;
+.header {
+  font-size: 24px;
+  color: #2c3e50;
+  line-height: 60px;
+  border-bottom: 1px solid #e4e7ed;
 }
-.img-card, .result-card, .score-card, .comment-card {
-  border-radius: 12px;
-  margin-bottom: 16px;
+.query-img {
+  width: 100%;
+  max-height: 1000px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
 }
-.img-desc {
-  color: #888;
-  font-size: 0.95em;
-  margin-top: 8px;
+.similar-img {
+  width: 100%;
+  height: 150px;
+  border-radius: 4px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
 }
-
 </style>
-

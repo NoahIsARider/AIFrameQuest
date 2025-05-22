@@ -163,7 +163,7 @@ def search_similar_images(query_features, index, image_files, k=TOP_K):
     for i, idx in enumerate(indices[0]):
         if idx < len(image_files):
             results.append({
-                'image': f'/static/uploads/{os.path.basename(image_files[idx])}',
+                'image': os.path.basename(image_files[idx]),
                 'distance': float(distances[0][i])
             })
     

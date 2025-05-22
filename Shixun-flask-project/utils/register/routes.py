@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_from_directory
 from .auth import register_user, login_user, load_users
 from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
@@ -49,23 +49,29 @@ def login():
 
 @auth_bp.route('/api/upload', methods=['POST'])
 def upload_image():
-    try:
-        if 'image' not in request.files:
-            return jsonify({'error': 'No image uploaded'}), 400
+    # Check if an image was uploaded
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image uploaded'}), 400
+    
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({'error': 'No image selected'}), 400
+    
+    # Process the search request using the faiss_search module
+    result = process_search_request(file)
 
-        file = request.files['image']
-        if file.filename == '':
-            return jsonify({'error': 'No image selected'}), 400
+    print(result)
+    
+    # Check if there was an error
+    if isinstance(result, tuple) and len(result) == 2 and isinstance(result[0], dict) and 'error' in result[0]:
+        return jsonify(result[0]), result[1]
+    
+    return jsonify(result)
 
-        # Process the search request using the faiss_search module
-        result = process_search_request(file)
+@auth_bp.route('/api/images/<filename>', methods=['GET'])
+def get_image(filename):
+    return send_from_directory(IMAGE_FOLDER, filename)
 
-        # Check if there was an error
-        if isinstance(result, tuple) and len(result) == 2 and isinstance(result[0], dict) and 'error' in result[0]:
-            return jsonify(result[0]), result[1]
-
-        return jsonify(result)
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return jsonify({'error': f'后端异常: {str(e)}'}), 500
+@auth_bp.route('/api/static/uploads/<filename>', methods=['GET'])
+def get_upload_image(filename):
+    return send_from_directory(UPLOAD_FOLDER, filename)
