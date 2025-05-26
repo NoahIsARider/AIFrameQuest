@@ -1,0 +1,1 @@
+{"name":"vue-hupu-style","version":"1.0.0","scripts":{"dev":"vite","build":"vite build","preview":"vite preview"},"dependencies":{"@element-plus/icons-vue":"^2.3.1","@vitejs/plugin-vue":"latest","axios":"^1.9.0","element-plus":"^2.9.10","marked":"^15.0.12","vue":"latest","vue-router":"latest","vuex":"latest"},"devDependencies":{"@types/node":"latest","vite":"latest"}}
