@@ -7,6 +7,11 @@
     
     <h2>{{ post.title }}</h2>
     
+    <!-- 浏览次数和评分信息 -->
+    <div class="post-meta-info">
+      <span class="views-count"><el-icon><View /></el-icon> 浏览次数: {{ post.views || 0 }}</span>
+    </div>
+    
     <!-- 评分信息 -->
     <div class="rating-section" v-if="post.avg_rating || post.avg_rating === 0">
       <div class="rating-header">
@@ -24,18 +29,76 @@
     </div>
     
     <!-- 图片展示区域 -->
-    <div class="images-section" v-if="postImages.length > 0">
-      <h3>词条图片 ({{ postImages.length }})</h3>
-      <div class="image-gallery">
-        <div v-for="image in postImages" :key="image.id" class="image-item">
-          <el-image 
-            :src="image.url" 
-            fit="cover"
-            :preview-src-list="imageUrls"
-            :initial-index="getImageIndex(image)"
-          />
-        </div>
+    <div class="images-section">
+      <div class="images-header">
+        <h3>词条图片 ({{ postImages.length }})</h3>
+        <!-- 添加上传图片按钮，仅在用户登录时显示 -->
+        <el-button v-if="isLoggedIn" type="primary" size="small" @click="openUploadDialog">
+          <el-icon><upload-filled /></el-icon> 上传图片
+        </el-button>
       </div>
+      
+      <!-- 使用Element Plus的Carousel组件实现轮播图 -->
+      <el-carousel
+        v-if="postImages.length > 0"
+        :interval="4000"
+        indicator-position="outside"
+        arrow="always"
+        :initial-index="carouselIndex"
+        @change="handleCarouselChange"
+      >
+        <el-carousel-item v-for="(chunk, index) in imageChunks" :key="index">
+          <div class="image-row">
+            <div v-for="image in chunk" :key="image.id" class="image-item">
+              <el-image 
+                :src="image.url" 
+                fit="cover"
+                :preview-src-list="imageUrls"
+                :initial-index="getImageIndex(image)"
+                preview-teleported
+              />
+            </div>
+          </div>
+        </el-carousel-item>
+      </el-carousel>
+      
+      <el-empty v-else description="暂无图片" />
+      
+      <!-- 图片上传对话框 -->
+      <el-dialog
+        v-model="uploadDialogVisible"
+        title="上传图片到词条"
+        width="30%"
+      >
+        <el-upload
+          class="upload-demo"
+          drag
+          action="#"
+          :auto-upload="false"
+          :on-change="handleFileChange"
+          :on-remove="handleFileRemove"
+          :limit="1"
+          :file-list="fileList"
+        >
+          <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+          <div class="el-upload__text">
+            拖拽文件到此处或 <em>点击上传</em>
+          </div>
+          <template #tip>
+            <div class="el-upload__tip">
+              请上传jpg/png格式的图片文件，文件大小不超过2MB
+            </div>
+          </template>
+        </el-upload>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="uploadDialogVisible = false">取消</el-button>
+            <el-button type="primary" @click="submitUpload" :loading="uploading">
+              上传
+            </el-button>
+          </span>
+        </template>
+      </el-dialog>
     </div>
     
     <!-- 添加评论表单 -->
@@ -80,7 +143,7 @@
       <div v-else class="comment-list">
         <div v-for="comment in comments" :key="comment.id" class="comment-item">
           <div class="comment-header">
-            <span class="comment-author">{{ comment.author }}</span>
+            <span class="comment-author">{{ decodeURIComponent(comment.author) }}</span>
             <span class="comment-date">{{ comment.date }}</span>
             <div class="comment-rating" v-if="comment.rating">
               <el-rate v-model="comment.rating" disabled show-score :max="10" />
@@ -96,11 +159,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
+import { View } from '@element-plus/icons-vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
-import { ElRate, ElMessage, ElAlert } from 'element-plus';
-import { ArrowLeft } from '@element-plus/icons-vue';
+import { ElRate, ElMessage, ElAlert, ElCarousel, ElCarouselItem } from 'element-plus';
+import { ArrowLeft, UploadFilled } from '@element-plus/icons-vue';
+import axios from 'axios';
 
 const route = useRoute();
 const router = useRouter();
@@ -109,10 +174,34 @@ const post = ref({});
 const comments = ref([]);
 const submitting = ref(false);
 const postImages = ref([]);
+const carouselIndex = ref(0); // 当前轮播图索引
+
+// 图片上传相关变量
+const uploadDialogVisible = ref(false);
+const fileList = ref([]);
+const selectedFile = ref(null);
+const uploading = ref(false);
+
+// 处理轮播图切换事件
+const handleCarouselChange = (index) => {
+  carouselIndex.value = index;
+};
 
 // 获取所有图片URL用于预览
 const imageUrls = computed(() => {
   return postImages.value.map(img => img.url);
+});
+
+// 将图片分组，每组三张
+const imageChunks = computed(() => {
+  const chunks = [];
+  const images = [...postImages.value];
+  
+  for (let i = 0; i < images.length; i += 3) {
+    chunks.push(images.slice(i, i + 3));
+  }
+  
+  return chunks;
 });
 
 // 获取图片在预览列表中的索引
@@ -124,6 +213,94 @@ const getImageIndex = (image) => {
 const isLoggedIn = computed(() => {
   return store.state.token && store.state.token !== '';
 });
+
+// 获取当前用户名（作为计算属性，确保实时更新）
+const username = computed(() => {
+  return store.state.username ? decodeURIComponent(store.state.username) : '';
+});
+
+// 打开上传对话框
+const openUploadDialog = () => {
+  if (!isLoggedIn.value) {
+    ElMessage.warning('请先登录后再上传图片');
+    return;
+  }
+  uploadDialogVisible.value = true;
+  fileList.value = [];
+  selectedFile.value = null;
+};
+
+// 处理文件变化
+const handleFileChange = (file) => {
+  // 检查文件类型
+  const isImage = file.raw.type.startsWith('image/');
+  if (!isImage) {
+    ElMessage.error('只能上传图片文件!');
+    fileList.value = [];
+    return;
+  }
+  
+  // 检查文件大小（限制为2MB）
+  const isLt2M = file.size / 1024 / 1024 < 2;
+  if (!isLt2M) {
+    ElMessage.error('图片大小不能超过2MB!');
+    fileList.value = [];
+    return;
+  }
+  
+  selectedFile.value = file.raw;
+};
+
+// 处理文件移除
+const handleFileRemove = () => {
+  selectedFile.value = null;
+  fileList.value = [];
+};
+
+// 提交上传
+const submitUpload = async () => {
+  if (!selectedFile.value) {
+    ElMessage.warning('请先选择要上传的图片');
+    return;
+  }
+  
+  uploading.value = true;
+  
+  try {
+    // 创建FormData对象
+    const formData = new FormData();
+    formData.append('file', selectedFile.value);
+    
+    // 设置请求头
+    const headers = {};
+    if (store.state.token) {
+      headers['Authorization'] = store.state.token;
+    }
+    
+    // 发送请求到后端
+    const response = await axios.post(
+      `http://127.0.0.1:5000/api/posts/${route.params.id}/upload-image`,
+      formData,
+      { headers }
+    );
+    
+    console.log('上传响应:', response.data);
+    
+    if (response.data.status === 'success') {
+      ElMessage.success('图片上传成功，等待管理员审核');
+      uploadDialogVisible.value = false;
+      fileList.value = [];
+      selectedFile.value = null;
+    } else {
+      ElMessage.error(response.data.message || '上传失败');
+    }
+  } catch (error) {
+    console.error('上传图片失败:', error);
+    ElMessage.error('上传图片失败: ' + (error.response?.data?.message || error.message));
+  } finally {
+    uploading.value = false;
+  }
+};
 
 // 新评论表单数据
 const newComment = ref({
@@ -143,8 +320,8 @@ const submitComment = async () => {
   try {
     submitting.value = true;
     
-    // 设置评论者姓名和日期
-    newComment.value.name = store.state.username || '匿名用户';
+    // 设置评论者姓名和日期 - 使用计算属性获取最新的username
+    newComment.value.name = username.value || '匿名用户';
     
     // 设置当前日期
     const now = new Date();
@@ -168,7 +345,7 @@ const submitComment = async () => {
     
     // 重置表单
     newComment.value.text = '';
-    newComment.value.rating = 5;
+    newComment.value.rating = 10;
     
     // 显示后端返回的消息
     ElMessage.success(response.message || '评论提交成功');
@@ -190,6 +367,17 @@ const goBack = () => {
   // }
 };
 
+const updatePostViews = async () => {
+  try {
+    const postId = route.params.id; // 从路由参数中获取帖子 ID
+    const response = await axios.post(`/api/posts/${postId}/views`);
+    console.log('浏览次数更新成功:', response.data);
+  } catch (error) {
+    console.error('浏览次数更新失败:', error);
+  }
+};
+
+
 onMounted(async () => {
   try {
     // 获取帖子详情
@@ -199,6 +387,31 @@ onMounted(async () => {
     // 获取评论
     await store.dispatch('fetchComments', route.params.id);
     comments.value = store.state.comments;
+
+    // 监听storage事件
+    window.addEventListener('storage', async (event) => {
+      if (event.key === 'token' || event.key === 'username') {
+        // 当token或username变化时，重新获取帖子详情和评论
+        await store.dispatch('fetchPost', route.params.id);
+        post.value = store.state.currentPost;
+        
+        await store.dispatch('fetchComments', route.params.id);
+        comments.value = store.state.comments;
+      }
+    });
+    // 页面加载时调用更新浏览次数的接口
+    updatePostViews();
+    // 监听token变化
+    watch(() => store.state.token, async (newToken) => {
+      if (newToken) {
+        // 当token变化时，重新获取帖子详情和评论
+        await store.dispatch('fetchPost', route.params.id);
+        post.value = store.state.currentPost;
+        
+        await store.dispatch('fetchComments', route.params.id);
+        comments.value = store.state.comments;
+      }
+    });
     
     // 获取帖子相关图片
     await store.dispatch('fetchPostImages', route.params.id);
@@ -227,6 +440,21 @@ onMounted(async () => {
 /* 返回按钮样式 */
 .back-button-container {
   margin-bottom: 20px;
+}
+
+/* 浏览次数样式 */
+.post-meta-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  color: #606266;
+  font-size: 14px;
+}
+
+.views-count {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 /* 标题样式 */
@@ -283,11 +511,76 @@ h2 {
   border-radius: 6px;
 }
 
-.images-section h3 {
+.images-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 15px;
+}
+
+.images-section h3 {
+  margin-bottom: 0;
   font-size: 18px;
   color: #303133;
 }
+
+/* 上传对话框样式 */
+.upload-demo {
+  width: 100%;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 15px;
+}
+
+/* 轮播图样式 */
+.image-row {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  height: 100%;
+}
+
+.image-item {
+  width: 200px;
+  height: 200px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.image-item .el-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 自定义轮播图样式 */
+:deep(.el-carousel__indicators) {
+  margin-top: -20px;
+  bottom: 10px;
+}
+
+:deep(.el-carousel__item) {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+:deep(.el-carousel__button) {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #dcdfe6;
+}
+
+:deep(.el-carousel__indicator.is-active .el-carousel__button) {
+  background-color: #409EFF;
+}
+
+
 
 .image-gallery {
   display: flex;

@@ -19,8 +19,8 @@ INDEX_PATH = os.path.join('D:\\', 'faiss_index.index')
 TOP_K = 12  # Number of similar images to retrieve
 
 # 图片信息和词条数据文件路径
-IMAGES_JSON_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'images.json')
-ENTRIES_JSON_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'entries.json')
+IMAGES_JSON_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'images-lite.json')
+ENTRIES_JSON_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'entries-lite.json')
 
 # Global variables to store the index and image files in memory
 global_index = None
@@ -158,30 +158,37 @@ def build_index():
 # 获取图片对应的词条信息
 def get_image_entry_info(image_filename):
     try:
-        # 读取图片信息文件
-        with open(IMAGES_JSON_PATH, 'r', encoding='utf-8') as f:
-            images_data = json.load(f)
+        from utils_database.models import Image, Post
+        from flask import current_app
         
-        # 读取词条信息文件
-        with open(ENTRIES_JSON_PATH, 'r', encoding='utf-8') as f:
-            entries_data = json.load(f)
-        
-        # 查找图片对应的词条ID
-        entry_id = None
-        for picture_key, picture_data in images_data.items():
-            if picture_data['file_name'] == image_filename:
-                entry_id = picture_data.get('entry')
-                break
-        
-        # 如果找到词条ID，获取词条信息
-        if entry_id and entry_id in entries_data:
-            entry_data = entries_data[entry_id]
-            return {
-                'entry_id': entry_data['id'],
-                'title': entry_data['title'],
-                'type': entry_data.get('type', ''),
-                'description': entry_data.get('description', [''])[0] if entry_data.get('description') else ''
-            }
+        # 使用数据库查询图片信息
+        with current_app.app_context():
+            # 查找图片对应的词条ID
+            image = Image.query.filter_by(file_name=image_filename).first()
+            
+            if not image:
+                print(f"Image not found in database: {image_filename}")
+                return None
+            
+            # 如果找到图片，获取关联的帖子信息
+            if image.post_id:
+                post = Post.query.get(image.post_id)
+                if post:
+                    # 如果description是JSON字符串，解析它
+                    description = ""
+                    if post.description:
+                        try:
+                            desc_list = json.loads(post.description)
+                            description = desc_list[0] if desc_list else ""
+                        except:
+                            description = post.description
+                    
+                    return {
+                        'entry_id': image.post_id,  # 使用 post_id 而不是 entry
+                        'title': post.title,
+                        'type': post.type or '',
+                        'description': description
+                    }
         
         return None
     except Exception as e:
@@ -200,18 +207,22 @@ def search_similar_images(query_features, index, image_files, k=TOP_K):
     results = []
     for i, idx in enumerate(indices[0]):
         if idx < len(image_files):
-            image_filename = os.path.basename(image_files[idx])
-            result = {
-                'image': image_filename,
-                'distance': float(distances[0][i])
-            }
-            
-            # 获取图片对应的词条信息
-            entry_info = get_image_entry_info(image_filename)
-            if entry_info:
-                result['entry_info'] = entry_info
-            
-            results.append(result)
+            try:
+                image_filename = os.path.basename(image_files[idx])
+                result = {
+                    'image': image_filename,
+                    'distance': float(distances[0][i])
+                }
+                
+                # 获取图片对应的词条信息
+                entry_info = get_image_entry_info(image_filename)
+                if entry_info:
+                    result['entry_info'] = entry_info
+                
+                results.append(result)
+            except Exception as e:
+                print(f"Error processing search result {idx}: {e}")
+                continue
     
     return results
 
@@ -244,13 +255,21 @@ def process_search_request(file):
             return {'error': 'Failed to build index. Please check server logs.'}, 500
         image_files = valid_image_files
     
-    # Search for similar images
-    results = search_similar_images(query_features, index, image_files)
-    
-    return {
-        'query_image': file.filename,
-        'results': results
-    }
+    try:
+        # Search for similar images
+        results = search_similar_images(query_features, index, image_files)
+        
+        return {
+            'query_image': file.filename,
+            'results': results
+        }
+    except Exception as e:
+        print(f"Error in process_search_request: {e}")
+        return {
+            'error': f'Error processing search request: {str(e)}',
+            'query_image': file.filename,
+            'results': []
+        }
 
 # Initialize the index
 def initialize_index():

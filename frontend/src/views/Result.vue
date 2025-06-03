@@ -3,16 +3,18 @@
     <el-main>
       <el-row :gutter="20">
         <!-- 左侧：图片和识别结果 -->
-        <el-col :span="8">
+        <el-col :span="6">
           <el-card class="img-card">
             <div class="section-title">搜索图片</div>
-            <el-image
-              style="width: 100%; max-width: 300px; max-height: 400px; border-radius: 10px; object-fit: contain;"
-              :src="imgUrl"
-              :preview-src-list="[uploadedImage]"
-              fit="cover"
-              preview-teleported
-            />
+            <div class="image-container">
+              <el-image
+                style="width: 100%; max-width: 250px; max-height: 300px; border-radius: 10px; object-fit: contain;"
+                :src="imgUrl"
+                :preview-src-list="[uploadedImage]"
+                fit="cover"
+                preview-teleported
+              />
+            </div>
             <div class="img-desc">来自 {{ imgDesc }}</div>
           </el-card>
           <el-card class="result-card" style="margin-top: 20px;">
@@ -29,7 +31,12 @@
                   <div class="result-title">{{ item.entry_info.title }}</div>
                   <div>类型：{{ item.entry_info.type }}</div>
                   <div>描述：{{ item.entry_info.description }}</div>
-                  <div>距离：{{ (item.distance).toFixed(2) }}</div>
+                  <div class="similarity-info">
+                    <span>相似度：</span>
+                    <span :style="{ color: getSimilarityColor(getSimilarityLevel(item.distance)) }">
+                      {{ getSimilarityLevel(item.distance) }}
+                    </span>
+                  </div>
                   <el-button 
                     type="primary" 
                     size="small" 
@@ -53,17 +60,19 @@
         </el-col>
 
         <!-- 右侧：评分和评论 -->
-        <el-col :span="16">
+        <el-col :span="18">
           <!-- 如果选中了搜索结果，显示大图 -->
           <el-card v-if="selectedEntry && entryDetail" class="selected-entry-card" style="margin-bottom: 20px;">
             <div class="section-title">{{ entryDetail.title }}</div>
-            <el-image
-              :src="getImageUrl(selectedEntry.image)"
-              style="width: 100%; max-width: 400px; max-height: 300px; border-radius: 10px; object-fit: contain; margin-bottom: 15px;"
-              fit="cover"
-              :preview-src-list="[getImageUrl(selectedEntry.image)]"
-              preview-teleported
-            />
+            <div class="large-image-container">
+              <el-image
+                :src="getImageUrl(selectedEntry.image)"
+                style="width: 100%; max-width: 600px; max-height: 400px; border-radius: 10px; object-fit: contain;"
+                fit="cover"
+                :preview-src-list="[getImageUrl(selectedEntry.image)]"
+                preview-teleported
+              />
+            </div>
             <div class="entry-details">
               <p><strong>类型：</strong>{{ entryDetail.type }}</p>
               <p><strong>描述：</strong>{{ entryDetail.description && entryDetail.description.length > 0 ? entryDetail.description.join(' ') : '暂无描述' }}</p>
@@ -91,12 +100,13 @@
                 </div>
                 <div class="comment-text">{{ comment.content }}</div>
                 <div class="comment-footer">
-                  <el-icon class="like-icon"><Star /></el-icon>
-                  <span class="like-count">{{ comment.likes }}</span>
-                  <el-link type="primary" :underline="false" style="margin-left: 16px;">回复</el-link>
+                  <!-- <el-icon class="like-icon"><Star /></el-icon> -->
+                  <!-- <span class="like-count">{{ comment.likes }}</span> -->
+                  <!-- <el-link type="primary" :underline="false" style="margin-left: 16px;">回复</el-link> -->
                 </div>
               </div>
             </div>
+            
             <el-pagination
               background
               layout="prev, pager, next"
@@ -105,6 +115,15 @@
               style="margin-top: 16px; text-align: right;"
             />
           </el-card>
+            <el-card class="similarity-legend-card">
+    <div class="similarity-legend-title">相似度等级说明</div>
+    <ul class="similarity-legend-list">
+      <li><span class="legend-level" style="color:#67C23A;">A</span>：距离 ≤ 100（高度相似）</li>
+      <li><span class="legend-level" style="color:#409EFF;">B</span>：100 &lt; 距离 ≤ 200（较高相似）</li>
+      <li><span class="legend-level" style="color:#E6A23C;">C</span>：200 &lt; 距离 ≤ 400（一般相似）</li>
+      <li><span class="legend-level" style="color:#F56C6C;">D</span>：距离 &gt; 400（低相似）</li>
+    </ul>
+  </el-card>
         </el-col>
       </el-row>
     </el-main>
@@ -312,6 +331,25 @@ onMounted(() => {
 watch(searchResults, () => {
   initializeDefaultSelection()
 }, { immediate: true })
+
+// 计算相似度等级
+const getSimilarityLevel = (distance) => {
+  if (distance <= 100) return 'A'
+  if (distance <= 200) return 'B'
+  if (distance <= 400) return 'C'
+  return 'D'
+}
+
+// 获取相似度等级对应的颜色
+const getSimilarityColor = (level) => {
+  switch (level) {
+    case 'A': return '#67C23A'  // 绿色
+    case 'B': return '#409EFF'  // 蓝色
+    case 'C': return '#E6A23C'  // 橙色
+    case 'D': return '#F56C6C'  // 红色
+    default: return '#909399'   // 灰色
+  }
+}
 </script>
 
 <style scoped>
@@ -328,10 +366,23 @@ watch(searchResults, () => {
   border-radius: 12px;
   margin-bottom: 16px;
 }
+.image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 15px 0;
+  min-height: 300px;
+}
+.img-card {
+  border-radius: 12px;
+  margin-bottom: 16px;
+  padding: 20px;
+}
 .img-desc {
   color: #888;
   font-size: 0.95em;
   margin-top: 8px;
+  text-align: center;
 }
 .result-item {
   display: flex;
@@ -400,18 +451,36 @@ watch(searchResults, () => {
 .selected-entry-card {
   border: 2px solid #409eff;
   box-shadow: 0 4px 12px rgba(64, 158, 255, 0.15);
+  padding: 20px;
+}
+.large-image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+  min-height: 400px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 20px;
 }
 .entry-details {
   color: #666;
   line-height: 1.6;
+  margin-top: 20px;
+  padding: 0 20px;
 }
 .entry-details p {
-  margin: 8px 0;
+  margin: 12px 0;
 }
 .result-item:hover {
   background-color: #f5f7fa;
   border-radius: 8px;
   transition: background-color 0.3s;
+}
+.similarity-info {
+  margin: 8px 0;
+  font-size: 0.95em;
+  font-weight: 500;
 }
 </style>
 

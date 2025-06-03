@@ -30,10 +30,10 @@
                       <el-icon><ChatDotRound /></el-icon>
                       评论 {{ post.comments }}
                     </el-button>
-                    <el-button type="text">
+                    <!-- <el-button type="text">
                       <el-icon><Star /></el-icon>
                       收藏 {{ post.favorites }}
-                    </el-button>
+                    </el-button> -->
                   </div>
                 </el-card>
               </el-col>
@@ -120,10 +120,10 @@
                       <el-icon><ChatDotRound /></el-icon>
                       评论 {{ post.comments }}
                     </el-button>
-                    <el-button type="text">
+                    <!-- <el-button type="text">
                       <el-icon><Star /></el-icon>
-                      收藏 {{ post.favorites }}
-                    </el-button>
+                       {{ post.favorites }}
+                    </el-button> -->
                   </div>
                 </el-card>
               </el-col>
@@ -155,10 +155,10 @@
                       <el-icon><ChatDotRound /></el-icon>
                       评论 {{ post.comments }}
                     </el-button>
-                    <el-button type="text">
+                    <!-- <el-button type="text">
                       <el-icon><Star /></el-icon>
                       收藏 {{ post.favorites }}
-                    </el-button>
+                    </el-button> -->
                   </div>
                 </el-card>
               </el-col>
@@ -184,16 +184,16 @@
                   <div class="post-footer">
                     <el-button type="text">
                       <el-icon><View /></el-icon>
-                      浏览 {{ post.views }}
+                       {{ post.views }}
                     </el-button>
                     <el-button type="text">
                       <el-icon><ChatDotRound /></el-icon>
                       评论 {{ post.comments }}
                     </el-button>
-                    <el-button type="text">
+                    <!-- <el-button type="text">
                       <el-icon><Star /></el-icon>
                       收藏 {{ post.favorites }}
-                    </el-button>
+                    </el-button> -->
                   </div>
                 </el-card>
               </el-col>
@@ -219,16 +219,16 @@
                   <div class="post-footer">
                     <el-button type="text">
                       <el-icon><View /></el-icon>
-                      浏览 {{ post.views }}
+                       {{ post.views }}
                     </el-button>
                     <el-button type="text">
                       <el-icon><ChatDotRound /></el-icon>
                       评论 {{ post.comments }}
                     </el-button>
-                    <el-button type="text">
+                    <!-- <el-button type="text">
                       <el-icon><Star /></el-icon>
                       收藏 {{ post.favorites }}
-                    </el-button>
+                    </el-button> -->
                   </div>
                 </el-card>
               </el-col>
@@ -260,10 +260,10 @@
                       <el-icon><ChatDotRound /></el-icon>
                       评论 {{ post.comments }}
                     </el-button>
-                    <el-button type="text">
+                    <!-- <el-button type="text">
                       <el-icon><Star /></el-icon>
                       收藏 {{ post.favorites }}
-                    </el-button>
+                    </el-button> -->
                   </div>
                 </el-card>
               </el-col>

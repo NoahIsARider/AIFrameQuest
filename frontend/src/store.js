@@ -30,14 +30,28 @@ const fetchComments = async (postId) => {
     // 从帖子详情中提取评论数据
     if (postDetail && postDetail.comments) {
       // 将评论数据转换为前端需要的格式
-      return postDetail.comments.map((comment, index) => ({
-        id: index + 1,
-        postId: parseInt(postId),
-        content: comment.text,
-        author: comment.name,
-        rating: comment.rating,
-        date: comment.date
-      }));
+      return postDetail.comments.map((comment, index) => {
+        // 尝试对可能被URL编码的用户名进行解码
+        let authorName = comment.name;
+        try {
+          // 检查是否是URL编码的字符串
+          if (/%[0-9A-F]{2}/.test(authorName)) {
+            authorName = decodeURIComponent(authorName);
+            console.log(`解码用户名: ${comment.name} -> ${authorName}`);
+          }
+        } catch (e) {
+          console.error(`解码用户名失败: ${e.message}`);
+        }
+        
+        return {
+          id: index + 1,
+          postId: parseInt(postId),
+          content: comment.text,
+          author: authorName,
+          rating: comment.rating,
+          date: comment.date
+        };
+      });
     }
     return [];
   } catch (error) {
@@ -120,15 +134,31 @@ const store = createStore({
       const images = await fetchPostImages(postId);
       commit('SET_POST_IMAGES', images);
     },
-    async addComment({ commit }, { postId, comment }) {
+    async addComment({ commit, state }, { postId, comment }) {
       try {
+        // 获取token
+        const token = state.token;
+        
+        // 设置请求头
+        const headers = {};
+        if (token) {
+          // 对token进行URL编码，解决中文用户名问题
+          const encodedToken = encodeURIComponent(token);
+          console.log('原始token:', token);
+          console.log('编码后token:', encodedToken);
+          // 直接使用编码后的token，不添加Bearer前缀
+          headers['Authorization'] = encodedToken;
+        }
+        
         // 发送评论到后端API
         const response = await axios.post(`http://127.0.0.1:5000/api/posts/${postId}/comments`, {
-          name: comment.name,
+          name: comment.name, // 仍然发送name作为后备
           text: comment.text,
           rating: comment.rating,
           date: comment.date
-        });
+        }, { headers });
+        
+        console.log('评论提交响应:', response.data);
         
         // 返回后端响应数据
         return response.data;

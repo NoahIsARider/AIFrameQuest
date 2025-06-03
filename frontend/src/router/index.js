@@ -3,6 +3,8 @@ import Home from '../views/Home.vue';
 import Hot from '../views/Hot.vue';
 import My from '../views/My.vue';
 import Login from '../views/Login.vue';
+import TextSearch from '../views/TextSearch.vue';
+import Result from '../views/Result.vue';
 
 const routes = [
   {
@@ -31,6 +33,18 @@ const routes = [
     path: '/my',
     name: 'My',
     component: My,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/text-search',
+    name: 'TextSearch',
+    component: TextSearch,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/result',
+    name: 'Result',
+    component: Result,
     meta: { requiresAuth: true }
   }
 ];

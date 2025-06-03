@@ -1,12 +1,12 @@
 <template>
   <div class="login-container">
     <div class="login-box">
-      <div class="login-header">
+      
+      <el-card class="login-card" shadow="never">
+        <div class="login-header">
         <h2>{{ isLogin ? '欢迎登录' : '用户注册' }}</h2>
         <p class="subtitle">{{ isLogin ? '请登录您的账号' : '创建您的新账号' }}</p>
       </div>
-      
-      <el-card class="login-card" shadow="never">
         <!-- 登录表单 -->
         <el-form
           v-if="isLogin"
@@ -101,8 +101,10 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Message, Lock } from '@element-plus/icons-vue'
 import axios from 'axios'
+import { useStore } from 'vuex'
 
 const router = useRouter()
+const store = useStore()
 const isLogin = ref(true)
 const loginFormRef = ref(null)
 const registerFormRef = ref(null)
@@ -187,7 +189,7 @@ const handleLogin = async () => {
           }))
           
           ElMessage.success('登录成功')
-          
+          window.location.reload();
           // 确保路由存在后再跳转
           if (router.hasRoute('Home')) {
             router.push('/home')
@@ -243,6 +245,28 @@ const handleRegister = async () => {
     }
   })
 }
+
+const login = async () => {
+  try {
+    const response = await axios.post('/api/login', {
+      username: username.value,
+      password: password.value,
+    });
+    if (response.data.success) {
+      // 使用修改后的mutation名称
+      store.commit('setToken', response.data.token);
+      store.commit('setUsername', username) // 更新 Vuex Store 的 username
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('username', username.value);
+      router.push('/admin/dashboard');
+    } else {
+      alert(response.data.message);
+    }
+  } catch (error) {
+    console.error(error);
+    alert('登录失败');
+  }
+};
 </script>
 
 <style scoped>
@@ -252,7 +276,8 @@ const handleRegister = async () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background:linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.6)),url('@/assets/images/login_background.jpg') no-repeat center center;
+  background-size: cover;
   position: fixed;
   top: 0;
   left: 0;
@@ -270,23 +295,26 @@ const handleRegister = async () => {
 .login-header {
   text-align: center;
   margin-bottom: 30px;
-  color: white;
+  color: #1a237e;
 }
 
 .login-header h2 {
   font-size: 28px;
   margin-bottom: 10px;
+  color: #1565c0;
+  font-weight: 600;
 }
 
 .subtitle {
   font-size: 16px;
-  opacity: 0.8;
+  color: #283593;
 }
 
 .login-card {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 12px;
-  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(21, 101, 192, 0.1);
+  border: 1px solid rgba(21, 101, 192, 0.2);
 }
 
 .login-form {
@@ -297,19 +325,41 @@ const handleRegister = async () => {
   width: 100%;
   padding: 12px 0;
   font-size: 16px;
+  background: #1565c0;
+  border-color: #1565c0;
+  font-weight: 500;
+}
+
+.submit-btn:hover {
+  background: #0d47a1;
+  border-color: #0d47a1;
 }
 
 .form-footer {
   text-align: center;
   margin-top: 20px;
-  color: #606266;
+  color: #283593;
 }
 
 :deep(.el-input__wrapper) {
   padding: 8px 12px;
+  box-shadow: 0 0 0 1px #90caf9;
+}
+
+:deep(.el-input__wrapper:hover) {
+  box-shadow: 0 0 0 1px #1565c0;
 }
 
 :deep(.el-input__inner) {
   height: 40px;
 }
-</style> 
+
+:deep(.el-button--primary.is-link) {
+  color: #1565c0;
+  font-weight: 500;
+}
+
+:deep(.el-button--primary.is-link:hover) {
+  color: #0d47a1;
+}
+</style>

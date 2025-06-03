@@ -7,6 +7,8 @@ import Result from './views/Result.vue';
 import Login from './views/Login.vue';
 import CreatePost from './views/CreatePost.vue';
 import VersionPlan from './views/VersionPlan.vue';
+import TextSearch from './views/TextSearch.vue';
+import TextSearchResult from './views/TextSearchResult.vue';
 
 const routes = [
   {
@@ -48,7 +50,17 @@ const routes = [
     path: '/version-plan',
     name: 'VersionPlan',
     component: VersionPlan
-  }
+  },
+  {
+    path: '/text-search',
+    name: 'TextSearch',
+    component: TextSearch
+  },
+  {
+    path: '/text-search-result',
+    name: 'TextSearchResult',
+    component: TextSearchResult
+  },
 ];
 
 const router = createRouter({

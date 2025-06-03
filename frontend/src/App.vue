@@ -1,5 +1,9 @@
 <template>
   <div class="app-container">
+    <div
+      v-if="currentRoute !== '/login'"
+      class="global-bg"
+    ></div>
     <div class="user-status" v-if="currentRoute !== '/login'">
       <template v-if="username">
         <span class="welcome-text">{{ username }}，欢迎您使用</span>
@@ -24,10 +28,12 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { useStore } from 'vuex'
 import Nav from './components/Nav.vue'
 
 const route = useRoute()
 const router = useRouter()
+const store = useStore()
 const username = ref(localStorage.getItem('username') || '')
 
 const currentRoute = computed(() => route.path)
@@ -39,23 +45,40 @@ watch(currentRoute, () => {
 
 // 更新用户状态
 const updateUserStatus = () => {
-  username.value = localStorage.getItem('username') || ''
+  const storedUsername = localStorage.getItem('username') || '';
+  const storedToken = localStorage.getItem('token') || '';
+  
+  // 更新本地状态
+  username.value = storedUsername;
+  
+  // 同步更新Vuex store
+  if (storedUsername) {
+    store.commit('setUsername', storedUsername);
+  }
+  if (storedToken) {
+    store.commit('setToken', storedToken);
+  }
 }
 
 // 监听localStorage变化
 window.addEventListener('storage', (e) => {
-  if (e.key === 'username') {
-    username.value = e.newValue
+  if (e.key === 'username' || e.key === 'token') {
+    updateUserStatus();
   }
 })
 
 // 退出登录
 const handleLogout = () => {
-  localStorage.removeItem('username')
-  localStorage.removeItem('token')
-  username.value = ''
-  ElMessage.success('已退出登录')
-  router.push('/login')
+  localStorage.removeItem('username');
+  localStorage.removeItem('token');
+  username.value = '';
+  
+  // 清除Vuex store中的状态
+  store.commit('setUsername', '');
+  store.commit('setToken', '');
+  
+  ElMessage.success('已退出登录');
+  router.push('/login');
 }
 
 // 跳转到登录页
@@ -82,6 +105,18 @@ onMounted(() => {
   height: 100vh;
   margin: 0;
   padding: 0;
+}
+.global-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0; /* 修改为负值，确保在所有内容之下 */
+  background:  linear-gradient(rgba(255,255,255,0.3), rgba(255,255,255,0.3)),url('./assets/images/background.png') no-repeat center center;
+  background-size: cover;
+  opacity: 0.2; /* 可调节透明度 */
+  pointer-events: none; /* 不影响页面交互 */
 }
 
 body {
@@ -123,4 +158,5 @@ body {
   font-size: 14px;
   color: #333;
 }
+
 </style>

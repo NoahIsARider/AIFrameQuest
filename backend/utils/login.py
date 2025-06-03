@@ -2,7 +2,7 @@ import json
 import os
 from flask import jsonify
 import logging
-
+from utils_database.models import User, db
 # 配置日志
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -11,28 +11,53 @@ logger = logging.getLogger(__name__)
 USERS_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'users.json')
 
 def load_users():
-    """加载用户数据"""
+    """从数据库中读取所有用户，返回兼容原始结构的字典"""
     try:
-        if os.path.exists(USERS_FILE):
-            with open(USERS_FILE, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                logger.debug(f"Loaded users from {USERS_FILE}: {data}")
-                return data
-        logger.debug(f"Users file not found at {USERS_FILE}")
-        return {}
+        users = User.query.all()
+        result = {}
+        
+        for user in users:
+            entry_key = f"user{user.id}"
+            result[entry_key] = {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "password": user.password,
+                "role": user.role
+            }
+       
+        logger.debug(f"成功从数据库加载 {len(users)} 个用户")
+        return result
+    
     except Exception as e:
-        logger.error(f"Error loading users: {str(e)}")
+        logger.error(f"加载用户数据失败: {str(e)}")
         return {}
-
+    
 def save_users(data):
-    """保存用户数据"""
+    """将用户数据保存到数据库中"""
     try:
-        os.makedirs(os.path.dirname(USERS_FILE), exist_ok=True)
-        with open(USERS_FILE, 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=4)
-        logger.debug(f"Saved users to {USERS_FILE}")
+        # 删除旧用户数据
+        User.query.delete()
+        
+        # 插入新用户数据
+        for key, user_data in data.items():
+            user = User(
+                id=user_data['id'],
+                username=user_data['username'],
+                email=user_data['email'],
+                password=user_data['password'],
+                role=user_data.get('role', 'user')
+            )
+            db.session.add(user)
+        
+        db.session.commit()
+        logger.debug("用户数据已成功写入数据库")
     except Exception as e:
-        logger.error(f"Error saving users: {str(e)}")
+        db.session.rollback()
+        logger.error(f"写入用户数据失败: {str(e)}")
+        raise e
+
+
 
 def register_user(username, email, password):
     """注册新用户"""

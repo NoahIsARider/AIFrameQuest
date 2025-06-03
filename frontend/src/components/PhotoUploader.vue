@@ -15,30 +15,34 @@
             action="#"
             :show-file-list="true"
             :on-change="handleChange"
+            :on-remove="handleRemove"
             :auto-upload="false"
             :limit="1"
+            :file-list="fileList"
           >
-            <el-icon class="upload-icon"><upload-filled /></el-icon>
-            <div class="el-upload__text">拖拽图片到这里或</div>
+            <template v-if="!uploadedImage">
+              <el-icon class="upload-icon"><upload-filled /></el-icon>
+              <div class="el-upload__text">拖拽图片到这里或</div>
+              <el-button type="primary">选择图片</el-button>
+            </template>
             
-            <el-button type="primary">选择图片</el-button>
-            
+            <!-- 上传图片预览区域 -->
+            <div v-else class="preview-container">
+              <h3>预览图片</h3>
+              <el-image 
+                :src="uploadedImage" 
+                fit="contain"
+                :preview-src-list="[uploadedImage]"
+                :initial-index="0"
+                class="preview-image"
+                preview-teleported
+              />
+            </div>
           </el-upload>
           
-          <!-- 上传图片预览区域 -->
-          <div v-if="uploadedImage" class="preview-container">
-            <h3>预览图片</h3>
-            <el-image 
-              :src="uploadedImage" 
-              fit="contain"
-              :preview-src-list="[uploadedImage]"
-              :initial-index="0"
-              class="preview-image"
-              preview-teleported
-            />
+          <div class="button-container">
+            <el-button type="success" @click="startSearch" :loading="loading">开始识别</el-button>
           </div>
-          
-          <el-button type="success" @click="startSearch" :loading="loading">开始识别</el-button>
         </el-col>
       </el-row>
       
@@ -70,6 +74,7 @@ const handleRemove: UploadProps['onRemove'] = (file, uploadFiles) => {
   console.log(file, uploadFiles)
   selectedFile.value = null
   uploadedImage.value = ''
+  fileList.value = []
 }
 
 const handlePreview: UploadProps['onPreview'] = (uploadFile) => {
@@ -196,6 +201,7 @@ const startSearch = async () => {
   align-items: center;
   justify-content: center;
   margin-bottom: 20px;
+  box-sizing: border-box;
 }
 .upload-icon {
   font-size: 48px;
@@ -270,20 +276,28 @@ const startSearch = async () => {
   color: #606266;
 }
 
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
 .preview-container {
-  margin: 20px 0;
+  width: 100%;
   padding: 15px;
-  border: 1px solid #ebeef5;
-  border-radius: 8px;
-  background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
 }
 
 .preview-image {
   width: 100%;
-  max-height: 400px;
+  height: 400px;
   object-fit: contain;
   border-radius: 8px;
   cursor: pointer;
+  background-color: #fafbfc;
 }
 
 .query-preview-image {
