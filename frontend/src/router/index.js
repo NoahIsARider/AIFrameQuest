@@ -5,6 +5,7 @@ import My from '../views/My.vue';
 import Login from '../views/Login.vue';
 import TextSearch from '../views/TextSearch.vue';
 import Result from '../views/Result.vue';
+import Rank from '../views/Rank.vue'
 
 const routes = [
   {
@@ -46,7 +47,12 @@ const routes = [
     name: 'Result',
     component: Result,
     meta: { requiresAuth: true }
-  }
+  },
+  {
+    path: '/rank',
+    name: 'Rank',
+    component: Rank
+   }
 ];
 
 const router = createRouter({

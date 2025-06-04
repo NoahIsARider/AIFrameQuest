@@ -4,7 +4,7 @@ from sqlalchemy import text, inspect
 
 app = Flask(__name__)
 # 使用MySQL数据库配置
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:050630zfyn@localhost/aiframequest'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:fanggege@localhost/aiframequest'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 

@@ -18,7 +18,7 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 # 配置数据库
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:050630zfyn@localhost/aiframequest'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:fanggege@localhost/aiframequest'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 

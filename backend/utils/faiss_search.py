@@ -14,8 +14,22 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 # Configuration
 IMAGE_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'images')
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'uploads')
+
+
 # Use a simple ASCII path for the index file to avoid issues with non-ASCII characters
-INDEX_PATH = os.path.join('D:\\', 'faiss_index.index')
+#INDEX_PATH = os.path.join('D:\\', 'faiss_index.index')
+import os
+# 获取当前文件所在目录的上一级目录
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# 设置 INDEX_PATH 为项目根目录下的 index 文件夹
+INDEX_PATH = os.path.join(BASE_DIR, 'index', 'image_index.faiss')
+# 自动创建 index 文件夹
+os.makedirs(os.path.dirname(INDEX_PATH), exist_ok=True)
+
+# 确保路径存在
+os.makedirs(os.path.dirname(INDEX_PATH), exist_ok=True)
+
+
 TOP_K = 12  # Number of similar images to retrieve
 
 # 图片信息和词条数据文件路径

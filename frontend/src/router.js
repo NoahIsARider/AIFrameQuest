@@ -9,6 +9,7 @@ import CreatePost from './views/CreatePost.vue';
 import VersionPlan from './views/VersionPlan.vue';
 import TextSearch from './views/TextSearch.vue';
 import TextSearchResult from './views/TextSearchResult.vue';
+import Rank from './views/Rank.vue'
 
 const routes = [
   {
@@ -61,6 +62,11 @@ const routes = [
     name: 'TextSearchResult',
     component: TextSearchResult
   },
+ {
+  path: '/rank',
+  name: 'Rank',
+  component: Rank
+ }
 ];
 
 const router = createRouter({

@@ -4,7 +4,7 @@ import os
 MYSQL_CONFIG = {
     'host': 'localhost',
     'user': 'root',            # 修改为你自己的用户名
-    'password': '050630zfyn',  # 修改为你自己的密码
+    'password': 'fanggege',  # 修改为你自己的密码
     'database': 'aiframequest'  #修改为你创建的库名称 ，建议还是这个名
 }
 

@@ -536,6 +536,7 @@ def upload_image_to_post(post_id):
         logger.error(f"上传图片到词条时出错: {str(e)}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
+
 # 启动应用
 if __name__ == '__main__':
     with app.app_context():
