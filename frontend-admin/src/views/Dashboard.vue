@@ -26,6 +26,14 @@
             <el-icon><PictureRounded /></el-icon>
             <span>图片审核</span>
           </el-menu-item>
+          <el-menu-item index="/dashboard/entries-uncensored">
+            <el-icon><document /></el-icon>
+            <span>未审核词条</span>
+          </el-menu-item>
+          <el-menu-item index="/dashboard/suggestions">
+            <el-icon><ChatLineRound /></el-icon>
+            <span>用户建议</span>
+          </el-menu-item>
         </el-menu>
       </el-aside>
       <el-container>
@@ -55,7 +63,7 @@
 <script>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { Document, PictureFilled, ChatDotRound, Setting } from '@element-plus/icons-vue'
+import { Document, PictureFilled, ChatDotRound, Setting, ChatLineRound } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { PictureRounded } from '@element-plus/icons-vue'
 
@@ -66,7 +74,8 @@ export default {
     PictureFilled,
     ChatDotRound,
     Setting,
-    PictureRounded
+    PictureRounded,
+    ChatLineRound
   },
   setup() {
     const router = useRouter()

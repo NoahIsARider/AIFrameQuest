@@ -2,6 +2,8 @@ import logging
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from utils_admin.auth import verify_admin, generate_admin_token, token_required
+from utils.faiss_search import initialize_index
+from utils.text_to_image_search import initialize_text_to_image_index
 import os
 import json
 import shutil
@@ -39,6 +41,12 @@ UNCENSORED_INFO_FILE = os.path.join(UNCENSORED_IMAGE_FOLDER, 'info.json')
 
 # 数据文件夹路径
 DATA_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+
+# 未审核词条数据文件路径
+ENTRIES_UNCENSORED_FILE = os.path.join(DATA_FOLDER, 'entries_uncensored.json')
+
+# 建议数据文件路径
+SUGGESTIONS_FILE = os.path.join(DATA_FOLDER, 'suggestions.json')
 
 # 允许的图片扩展名
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
@@ -198,6 +206,42 @@ def update_entry(current_admin, entry_id):
         logger.error(f"更新词条出错: {str(e)}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
+# 获取未审核词条数据
+@app.route('/api/admin/entries-uncensored', methods=['GET'])
+@token_required
+def get_entries_uncensored(current_admin):
+    try:
+        # 检查文件是否存在
+        if not os.path.exists(ENTRIES_UNCENSORED_FILE):
+            return jsonify({"status": "error", "message": "未审核词条数据文件不存在"}), 404
+        
+        # 读取文件内容
+        with open(ENTRIES_UNCENSORED_FILE, 'r', encoding='utf-8') as f:
+            entries_uncensored = json.load(f)
+        
+        return jsonify({"status": "success", "entries": entries_uncensored}), 200
+    except Exception as e:
+        logger.error(f"获取未审核词条数据出错: {str(e)}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# 获取用户建议数据
+@app.route('/api/admin/suggestions', methods=['GET'])
+@token_required
+def get_suggestions(current_admin):
+    try:
+        # 检查文件是否存在
+        if not os.path.exists(SUGGESTIONS_FILE):
+            return jsonify({"status": "error", "message": "建议数据文件不存在"}), 404
+        
+        # 读取文件内容
+        with open(SUGGESTIONS_FILE, 'r', encoding='utf-8') as f:
+            suggestions = json.load(f)
+        
+        return jsonify({"status": "success", "suggestions": suggestions}), 200
+    except Exception as e:
+        logger.error(f"获取建议数据出错: {str(e)}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 # 删除词条
 @app.route('/api/admin/entries/<entry_id>', methods=['DELETE'])
 @token_required
@@ -345,6 +389,37 @@ def upload_image(current_admin):
         logger.error(f"上传图片出错: {str(e)}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
+# # 删除图片
+# @app.route('/api/admin/images/<image_id>', methods=['DELETE'])
+# @token_required
+# def delete_image(current_admin, image_id):
+#     try:
+#         # 从image_id中提取数字部分
+#         img_id = int(image_id.replace("image", ""))
+#         image = Image.query.get(img_id)
+        
+#         if image:
+#             # 删除文件系统中的图片文件
+#             file_path = os.path.join(IMAGE_FOLDER, image.file_name)
+#             if os.path.exists(file_path):
+#                 os.remove(file_path)
+            
+#             # 删除数据库中的图片记录
+#             db.session.delete(image)
+#             db.session.commit()
+            
+#             return jsonify({"status": "success", "message": "图片删除成功"}), 200
+#         else:
+#             return jsonify({"status": "error", "message": "图片不存在"}), 404
+#     except Exception as e:
+#         db.session.rollback()
+#         logger.error(f"删除图片出错: {str(e)}")
+#         return jsonify({"status": "error", "message": str(e)}), 500
+
+import json
+import os
+from pathlib import Path
+
 # 删除图片
 @app.route('/api/admin/images/<image_id>', methods=['DELETE'])
 @token_required
@@ -354,19 +429,57 @@ def delete_image(current_admin, image_id):
         img_id = int(image_id.replace("image", ""))
         image = Image.query.get(img_id)
         
-        if image:
-            # 删除文件系统中的图片文件
-            file_path = os.path.join(IMAGE_FOLDER, image.file_name)
-            if os.path.exists(file_path):
+        if not image:
+            return jsonify({"status": "error", "message": "图片不存在"}), 404
+
+        # 删除文件系统中的图片文件
+        file_path = os.path.join(IMAGE_FOLDER, image.file_name)
+        if os.path.exists(file_path):
+            try:
                 os.remove(file_path)
+            except OSError as e:
+                logger.error(f"删除图片文件失败: {str(e)}")
+                return jsonify({"status": "error", "message": f"删除图片文件失败: {str(e)}"}), 500
             
-            # 删除数据库中的图片记录
+        # 删除数据库中的图片记录
+        try:
             db.session.delete(image)
             db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"删除数据库记录失败: {str(e)}")
+            return jsonify({"status": "error", "message": f"删除数据库记录失败: {str(e)}"}), 500
+        
+        # 处理images.json文件
+        json_file_path = Path(__file__).parent / 'data' / 'images.json'
+        try:
+            if json_file_path.exists():
+                # 读取文件内容
+                with open(json_file_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                
+                # 查找并删除id匹配的项
+                updated_data = {
+                    key: value for key, value in data.items() 
+                    if value.get('id') != img_id
+                }
+                
+                # 如果数据有变化，则写入文件
+                if len(updated_data) != len(data):
+                    # 使用临时文件模式写入，确保原子性操作
+                    temp_file = json_file_path.with_suffix('.tmp')
+                    with open(temp_file, 'w', encoding='utf-8') as f:
+                        json.dump(updated_data, f, indent=2, ensure_ascii=False)
+                    
+                    # 替换原文件
+                    temp_file.replace(json_file_path)
+                    
+        except Exception as e:
+            logger.error(f"更新images.json文件失败: {str(e)}")
+            # 这里不返回错误，因为主要操作已完成
             
-            return jsonify({"status": "success", "message": "图片删除成功"}), 200
-        else:
-            return jsonify({"status": "error", "message": "图片不存在"}), 404
+        return jsonify({"status": "success", "message": "图片删除成功"}), 200
+        
     except Exception as e:
         db.session.rollback()
         logger.error(f"删除图片出错: {str(e)}")
@@ -629,7 +742,7 @@ def analyze_comments_bert(current_admin):
         logger.error(f"分析评论出错: {str(e)}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
-# 使用百度AI分析所有评论
+# 使用百度AI分析所有评论，由于效果不好以及远程API不稳定而暂时停用
 @app.route('/api/admin/analyze/comments/baidu', methods=['GET'])
 @token_required
 def analyze_comments_baidu(current_admin):
@@ -779,6 +892,19 @@ def analyze_single_image_ai_moderation(current_admin, image_id):
         return jsonify({"status": "success", "result": result}), 200
     except Exception as e:
         logger.error(f"AI审核单张图片出错: {str(e)}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# 添加一个简单的接口
+@app.route('/api/admin/initialize-index', methods=['POST'])
+@token_required
+def simple_action(current_admin):
+    try:
+        logger.info("管理员触发了重新计算索引的操作")
+        initialize_index()
+        initialize_text_to_image_index()
+        return jsonify({"status": "success", "message": "重新计算索引操作已成功触发"}), 200
+    except Exception as e:
+        logger.error(f"重新计算索引操作出错: {str(e)}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':

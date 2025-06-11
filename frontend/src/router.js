@@ -9,7 +9,10 @@ import CreatePost from './views/CreatePost.vue';
 import VersionPlan from './views/VersionPlan.vue';
 import TextSearch from './views/TextSearch.vue';
 import TextSearchResult from './views/TextSearchResult.vue';
-
+import Quiz from './views/Quiz.vue';
+import Rank from './views/Rank.vue';
+import SubmitEntry from './views/SubmitEntry.vue';
+import SubmitSuggestion from './views/SubmitSuggestion.vue';
 const routes = [
   {
     path: '/Home',
@@ -61,6 +64,26 @@ const routes = [
     name: 'TextSearchResult',
     component: TextSearchResult
   },
+  {
+    path: '/quiz',
+    name: 'Quiz',
+    component: Quiz,
+  },
+  {
+    path: '/rank',
+    name: 'Rank',
+    component: Rank
+  },
+  {
+    path: '/submit-entry',
+    name: 'SubmitEntry',
+    component: SubmitEntry
+  },
+  {
+    path: '/submit-suggestion',
+    name: 'SubmitSuggestion',
+    component: SubmitSuggestion
+  }
 ];
 
 const router = createRouter({

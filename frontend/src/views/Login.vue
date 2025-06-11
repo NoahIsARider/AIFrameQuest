@@ -4,7 +4,7 @@
       
       <el-card class="login-card" shadow="never">
         <div class="login-header">
-        <h2>{{ isLogin ? '欢迎登录' : '用户注册' }}</h2>
+        <h2>{{ isLogin ? '欢迎登录AIFrameQuest' : 'AIFrameQuest用户注册' }}</h2>
         <p class="subtitle">{{ isLogin ? '请登录您的账号' : '创建您的新账号' }}</p>
       </div>
         <!-- 登录表单 -->
@@ -276,7 +276,8 @@ const login = async () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background:linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.6)),url('@/assets/images/login_background.jpg') no-repeat center center;
+  background:linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.8)),url('@/assets/images/login_background_lijun.png') no-repeat center center;
+    /* background:linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.3)),url('@/assets/images/图片1.png') no-repeat center center; */
   background-size: cover;
   position: fixed;
   top: 0;

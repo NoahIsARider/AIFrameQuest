@@ -10,7 +10,7 @@
       <el-row justify="center">
         <el-col :span="20">
           <div class="search-container">
-            <h2>文字搜图</h2>
+            <h2>文字搜图-BETA</h2>
             <p class="description">输入描述文字，搜索相关图片</p>
             
             <el-input
@@ -34,6 +34,14 @@
                 <li>使用简洁明了的描述</li>
                 <li>可以尝试描述图片的主体、颜色、场景等</li>
                 <li>例如："蓝天下的樱花树"、"奔跑的黑色小狗"</li>
+              </ul>
+            </div>
+            <div class="search-tips">
+              <p>英雄帖：</p>
+              <ul>
+                <li>文字搜图模块对于描述迷因的图片和文字的匹配效果一般</li>
+                <li>我们期待您能给出轻量级而效果理想的解决方案</li>
+                <li>被采纳的建议将获得奖励，欢迎联系我们：aiframequest@gmail.com</li>
               </ul>
             </div>
           </div>
@@ -98,10 +106,7 @@ const startSearch = async () => {
 .text-search-page {
   min-height: 100vh;
   background: #fff;
-  /* display: block !important; */
-  width: 100%;
-  position: relative;
-  z-index: 0;
+
 }
 
 .header-bar {
@@ -130,7 +135,7 @@ const startSearch = async () => {
 .search-container {
   padding: 30px;
   border-radius: 8px;
-  background: #fff;
+  background: transparent;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 

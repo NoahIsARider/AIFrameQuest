@@ -115,7 +115,7 @@ onMounted(() => {
   z-index: 0; /* 修改为负值，确保在所有内容之下 */
   background:  linear-gradient(rgba(255,255,255,0.3), rgba(255,255,255,0.3)),url('./assets/images/background.png') no-repeat center center;
   background-size: cover;
-  opacity: 0.2; /* 可调节透明度 */
+  opacity: 0.1; /* 可调节透明度 */
   pointer-events: none; /* 不影响页面交互 */
 }
 
@@ -142,7 +142,7 @@ body {
 
 .user-status {
   position: fixed;
-  top: 20px;
+  bottom: 20px;
   right: 20px;
   z-index: 1000;
   background-color: rgba(255, 255, 255, 0.9);

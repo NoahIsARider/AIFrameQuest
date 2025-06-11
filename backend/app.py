@@ -2,10 +2,12 @@ import logging
 from flask import Flask, request, jsonify, render_template, redirect, url_for, send_from_directory
 from flask_cors import CORS
 from functools import wraps
+import random
 from utils.login import register_user, login_user
 from utils.list import read_posts, write_posts, get_post_detail
 from utils.faiss_search import process_search_request, initialize_index
 from utils.text_to_image_search import process_text_search_request, initialize_text_to_image_index
+from utils.guess_entry import get_spark_hint
 from utils_database.models import db, Image, Post, Comment
 import os
 import json
@@ -535,12 +537,142 @@ def upload_image_to_post(post_id):
     except Exception as e:
         logger.error(f"上传图片到词条时出错: {str(e)}")
         return jsonify({"status": "error", "message": str(e)}), 500
+    
+    
+@app.route('/api/quiz/image-entry', methods=['GET'])
+def get_image_entry_quiz():
+    # 随机选一张图片
+    image = Image.query.order_by(db.func.rand()).first()
+    print(image.file_name)
+    if not image:
+        return jsonify({'error': 'No image found'}), 404
+
+    # 获取图片对应的词条
+    post = Post.query.get(image.post_id)
+    if not post:
+        return jsonify({'error': 'No post found for image'}), 404
+
+    correct_entry = {'id': post.id, 'title': post.title}
+    # 随机获取3个其他词条
+    other_posts = Post.query.filter(Post.id != post.id).order_by(db.func.rand()).limit(3).all()
+    options = [correct_entry] + [{'id': p.id, 'title': p.title} for p in other_posts]
+    random.shuffle(options)
+    # 标记正确答案
+    correct_option = next(i for i, opt in enumerate(options) if opt['id'] == post.id)
+
+    return jsonify({
+        'image_url': f'/images/{image.file_name}',
+        'options': [opt['title'] for opt in options],
+        'answer': correct_option  # 前端可不显示，仅用于校验
+    })
+
+@app.route('/api/quiz/image-entry-8', methods=['GET'])
+def get_image_entry_8():
+    image = Image.query.order_by(db.func.rand()).first()
+    post = Post.query.get(image.post_id)
+    correct_entry = {'id': post.id, 'title': post.title}
+    # 随机获取7个其他词条
+    other_posts = Post.query.filter(Post.id != post.id).order_by(db.func.rand()).limit(7).all()
+    options = [correct_entry] + [{'id': p.id, 'title': p.title} for p in other_posts]
+    random.shuffle(options)
+    correct_option = next(i for i, opt in enumerate(options) if opt['id'] == post.id)
+    return jsonify({
+        'image_url': f'/images/{image.file_name}',
+        'options': [opt['title'] for opt in options],
+        'answer': correct_option
+    })
+
+@app.route('/api/quiz/ai-hint', methods=['POST'])
+def ai_hint():
+    data = request.json
+    correct_answer = data['options'][data['answer']]  # 获取正确答案内容
+    prompt = (
+        f"你是一个图片问答助手。现在有一张图片和8个选项，用户已经尝试了以下选项但都不正确："
+        f"{[data['options'][i] for i in data['selected']]}\n"
+        f"请根据图片内容和剩余选项，给用户一个提示，但不要直接给出答案，也不要给出相关性过高的提示。"
+        f"正确答案是：{correct_answer}。请朝着这个方向给出线索，但不要直接说出答案。\n"
+        f"全部选项：{data['options']}"
+    )
+    hint = get_spark_hint(prompt)
+    return jsonify({'hint': hint})
+
+# 词条相关API
+@app.route('/api/entries', methods=['POST', 'OPTIONS'])
+def add_entry():
+    if request.method == 'OPTIONS':
+        return '', 204
+    try:
+        entry = request.json
+        # 词条文件路径
+        entries_path = os.path.join(os.path.dirname(__file__), 'data', 'entries_uncensored.json')
+        # 读取原有数据
+        with open(entries_path, 'r', encoding='utf-8') as f:
+            entries = json.load(f)
+        # 生成新id和key
+        max_id = max([v.get('id', 0) for v in entries.values() if isinstance(v, dict) and 'id' in v] + [0])
+        new_id = max_id + 1
+        new_key = f'entry{new_id}'
+        # 构造新词条
+        new_entry = {
+            "id": new_id,
+            "title": entry.get('title', ''),
+            "type": entry.get('type', ''),
+            "cover": entry.get('cover', ''),
+            "description": entry.get('description', []),
+            "comments": [],
+            "key": new_key
+        }
+        entries[new_key] = new_entry
+        # 写回文件
+        with open(entries_path, 'w', encoding='utf-8') as f:
+            json.dump(entries, f, ensure_ascii=False, indent=2)
+        return jsonify({"status": "success", "message": "词条添加成功", "id": new_id}), 201
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# 建议相关API
+@app.route('/api/suggestions', methods=['POST'])
+def submit_suggestion():
+    try:
+        data = request.get_json()
+        title = data.get('title')
+        content = data.get('content')
+        username = data.get('username', '匿名用户')  # 从前端接收用户名
+        logger.debug(f"提交建议 - 标题: {title}, 内容: {content}")
+
+        if not title or not content:
+            return jsonify({"status": "error", "message": "标题和内容不能为空"}), 400
+
+        # 保存到 suggestions.json
+        suggestions_path = os.path.join(os.path.dirname(__file__), 'data', 'suggestions.json')
+        if os.path.exists(suggestions_path):
+            with open(suggestions_path, 'r', encoding='utf-8') as f:
+                suggestions = json.load(f)
+        else:
+            suggestions = []
+
+        suggestions.append({
+            "title": title,
+            "content": content,
+            "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "username": username  # 保存用户名
+        })
+
+        with open(suggestions_path, 'w', encoding='utf-8') as f:
+            json.dump(suggestions, f, ensure_ascii=False, indent=2)
+
+        logger.debug("建议提交成功")
+        return jsonify({"status": "success", "message": "感谢您的建议！"}), 201
+    except Exception as e:
+        logger.error(f"提交建议时出错: {str(e)}")
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 # 启动应用
 if __name__ == '__main__':
+    app.run(debug=True, port=5000)
     with app.app_context():
         # 初始化图像搜索索引
         initialize_index()
         # 初始化文字搜图索引
         initialize_text_to_image_index()
-    app.run(debug=True, port=5000)
+

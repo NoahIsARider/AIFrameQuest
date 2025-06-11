@@ -16,7 +16,7 @@ IMAGE_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__fi
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'uploads')
 # Use a simple ASCII path for the index file to avoid issues with non-ASCII characters
 INDEX_PATH = os.path.join('D:\\', 'faiss_index.index')
-TOP_K = 12  # Number of similar images to retrieve
+TOP_K = 10  # Number of similar images to retrieve
 
 # 图片信息和词条数据文件路径
 IMAGES_JSON_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'images-lite.json')

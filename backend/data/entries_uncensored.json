@@ -1,0 +1,24 @@
+{
+  "entry1": {
+    "id": 1,
+    "title": "草东没有派对",
+    "type": "迷因",
+    "cover": "",
+    "description": [
+      "一个台湾独立乐团，因其歌词和音乐风格而受到广泛关注。"
+    ],
+    "comments": [],
+    "key": "entry25"
+  },
+  "entry2": {
+    "id": 2,
+    "title": "了不起的盖茨比",
+    "type": "电影",
+    "cover": "",
+    "description": [
+      "一部经典美国电影"
+    ],
+    "comments": [],
+    "key": "entry2"
+  }
+}

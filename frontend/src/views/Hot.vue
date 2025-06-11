@@ -1,5 +1,20 @@
 <template>
   <div class="hot-container">
+    <!-- 搜索框 -->
+    <div class="search-container">
+      <el-input
+        v-model="searchQuery"
+        placeholder="搜索词条..."
+        class="search-input"
+        clearable
+        @clear="handleSearchClear"
+      >
+        <template #prefix>
+          <el-icon><Search /></el-icon>
+        </template>
+      </el-input>
+    </div>
+    
     <!-- 顶部标签页 -->
     <el-tabs v-model="activeTab" class="category-tabs">
       <el-tab-pane label="全部" name="all">
@@ -91,6 +106,11 @@
                 </div>
               </div>
             </el-card>
+            <div class="submit-entry-link">
+              <router-link to="/submit-entry" class="link-button">
+                申请创建词条
+              </router-link>
+            </div>
           </div>
         </div>
       </el-tab-pane>
@@ -184,7 +204,7 @@
                   <div class="post-footer">
                     <el-button type="text">
                       <el-icon><View /></el-icon>
-                       {{ post.views }}
+                      浏览 {{ post.views }}
                     </el-button>
                     <el-button type="text">
                       <el-icon><ChatDotRound /></el-icon>
@@ -219,7 +239,7 @@
                   <div class="post-footer">
                     <el-button type="text">
                       <el-icon><View /></el-icon>
-                       {{ post.views }}
+                       浏览 {{ post.views }}
                     </el-button>
                     <el-button type="text">
                       <el-icon><ChatDotRound /></el-icon>
@@ -265,6 +285,7 @@
                       收藏 {{ post.favorites }}
                     </el-button> -->
                   </div>
+                  
                 </el-card>
               </el-col>
             </el-row>
@@ -284,13 +305,15 @@ import {
   VideoCamera, 
   Film, 
   Monitor, 
-  VideoPlay 
+  VideoPlay,
+  Search 
 } from '@element-plus/icons-vue'
 
 // 响应式数据
 const activeTab = ref('all')
 const activeCategory = ref('anime')
 const posts = ref([]) // 用于存储从后端获取的帖子数据
+const searchQuery = ref('') // 搜索关键词
 
 // 热门话题数据（也可以从后端获取）
 const hotTopics = ref([
@@ -329,16 +352,35 @@ onMounted(() => {
 
 // 过滤后的帖子列表
 const filteredPosts = computed(() => {
-  if (activeTab.value === 'all') return posts.value
-  const categoryMap = {
-    'anime': '动漫',
-    'movie': '电影',
-    'tv': '电视剧',
-    'game': '游戏',
-    'meme': '迷因'
+  // 首先按分类过滤
+  let filtered = posts.value
+  if (activeTab.value !== 'all') {
+    const categoryMap = {
+      'anime': '动漫',
+      'movie': '电影',
+      'tv': '电视剧',
+      'game': '游戏',
+      'meme': '迷因'
+    }
+    filtered = filtered.filter(post => post.category === categoryMap[activeTab.value])
   }
-  return posts.value.filter(post => post.category === categoryMap[activeTab.value])
+  
+  // 然后按搜索词过滤
+  if (searchQuery.value.trim()) {
+    const query = searchQuery.value.toLowerCase().trim()
+    filtered = filtered.filter(post => 
+      post.title.toLowerCase().includes(query) || 
+      (post.content && post.content.toLowerCase().includes(query))
+    )
+  }
+  
+  return filtered
 })
+
+// 清除搜索
+const handleSearchClear = () => {
+  searchQuery.value = ''
+}
 
 // 获取标签颜色类型
 const getTagType = (category) => {
@@ -368,10 +410,23 @@ const handleCategorySelect = (index) => {
   padding: 20px;
 }
 
+.search-container {
+  margin-bottom: 20px;
+  margin-left: 305px;
+  width: 2000px;
+  display: flex;
+  align-items: center;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 500px;
+}
+
 .content-wrapper {
   display: flex;
   gap: 20px;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .main-content {
@@ -465,4 +520,23 @@ const handleCategorySelect = (index) => {
 .topic-item:last-child {
   border-bottom: none;
 }
+
+.submit-entry-link {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.link-button {
+  display: flex;
+  margin-top: 10px;
+  justify-content: center; 
+  align-items: center; 
+  padding: 10px 20px;
+  background-color: #117fed;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
 </style>

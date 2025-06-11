@@ -12,7 +12,7 @@ import faiss
 # 配置路径
 IMAGE_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'images')
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'uploads')
-TEXT_INDEX_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'text_to_image_index.index')
+TEXT_INDEX_PATH = os.path.join('D:\\', 'text_to_image_index.index')
 TOP_K = 10  # 返回的相似图片数量
 
 # 确保数据目录存在

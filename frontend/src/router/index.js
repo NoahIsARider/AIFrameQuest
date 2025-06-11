@@ -5,7 +5,10 @@ import My from '../views/My.vue';
 import Login from '../views/Login.vue';
 import TextSearch from '../views/TextSearch.vue';
 import Result from '../views/Result.vue';
-
+import Quiz from '../views/Quiz.vue';
+import Rank from '../views/Rank.vue';
+import SubmitEntry from '../views/SubmitEntry.vue';
+import SubmitSuggestion from '../views/SubmitSuggestion.vue';
 const routes = [
   {
     path: '/',
@@ -45,6 +48,30 @@ const routes = [
     path: '/result',
     name: 'Result',
     component: Result,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/quiz',
+    name: 'Quiz',
+    component: Quiz,
+    meta: { requiresAuth: true }
+  },
+  {
+    path:'/rank',
+    name: 'Rank',
+    component: Rank,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/submit-entry',
+    name: 'SubmitEntry',
+    component: SubmitEntry,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/submit-suggestion',
+    name: 'SubmitSuggestion',
+    component: SubmitSuggestion,
     meta: { requiresAuth: true }
   }
 ];

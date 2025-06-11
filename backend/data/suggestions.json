@@ -1,0 +1,38 @@
+[
+  {
+    "title": "优化搜索功能",
+    "content": "建议增加模糊搜索功能，以便用户更方便地找到相关内容。",
+    "time": "2025-06-07 19:00:00",
+    "username": "user1@aiframequest.com"
+  },
+  {
+    "title": "增加夜间模式",
+    "content": "建议增加夜间模式，以减少夜间使用时的视觉疲劳。",
+    "time": "2025-06-07 19:05:00",
+    "username": "user2@aiframequest.com"
+  },
+  {
+    "title": "改进用户界面",
+    "content": "建议优化用户界面设计，使其更加直观和易用。",
+    "time": "2025-06-07 19:10:00",
+    "username": "user3@aiframequest.com"
+  },
+  {
+    "title": "增加多语言支持",
+    "content": "建议增加多语言支持，以便更多用户能够使用该应用。",
+    "time": "2025-06-07 19:15:00",
+    "username": "user4@aiframequest.com"
+  },
+  {
+    "title": "提升加载速度",
+    "content": "建议优化应用的加载速度，以提高用户体验。",
+    "time": "2025-06-07 19:20:00",
+    "username": "user5@aiframequest.com"
+  },
+  {
+    "title": "增加数据导出功能",
+    "content": "建议增加数据导出功能，以便用户能够备份和分享他们的数据。",
+    "time": "2025-06-07 19:25:00",
+    "username": "user6@aiframequest.com"
+  }
+]

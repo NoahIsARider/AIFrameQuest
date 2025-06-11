@@ -3,8 +3,10 @@
     <ul>
       <li><router-link to="/home">首页</router-link></li>
       <li><router-link to="/hot">词条</router-link></li>
+      <li><router-link to="/rank">排行榜</router-link></li>
       <li><router-link to="/my">以图搜图</router-link></li>
-      <li><router-link to="/text-search">文字搜图</router-link></li>
+      <li><router-link to="/text-search">文字搜图-BETA</router-link></li>
+      <li><router-link to="/quiz">识图问答</router-link></li>
       <li><router-link to="/version-plan">版本计划</router-link></li>
     </ul>
   </nav>

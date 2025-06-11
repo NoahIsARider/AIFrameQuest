@@ -2,7 +2,10 @@
   <div class="images-container">
     <div class="page-header">
       <h2>图片管理</h2>
-      <el-button type="primary" @click="openUploadDialog">上传图片</el-button>
+  <div class="button-group">
+    <el-button type="primary" @click="openUploadDialog">上传图片</el-button>
+    <el-button type="danger" @click="triggerSimpleAction">重置图片索引</el-button>
+  </div>
     </div>
     
     <!-- 图片上传对话框 -->
@@ -158,7 +161,15 @@ export default {
       imagesList.value = []
       allLoaded.value = false
     }
-    
+    const triggerSimpleAction = async () => {
+      try {
+        const response = await axios.post('/api/admin/initialize-index')
+        ElMessage.success(response.data.message)
+      } catch (error) {
+        console.error('重新计算图片指数失败:', error)
+        ElMessage.error('重新计算图片指数失败: ' + error.message)
+      }
+    }
     // 获取图片（支持分页和筛选）
     const fetchImages = async (loadMore = false) => {
       if (loading.value || (loadMore && allLoaded.value)) return
@@ -345,9 +356,12 @@ export default {
       handleUploadSuccess,
       beforeUpload,
       deleteImage,
-      loadMore
+      loadMore,
+      triggerSimpleAction
     }
   }
+
+  
 }
 </script>
 
@@ -462,6 +476,11 @@ export default {
   margin-top: 10px;
   color: #606266;
   font-size: 14px;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px; /* 控制按钮之间的间距 */
 }
 
 @keyframes rotating {

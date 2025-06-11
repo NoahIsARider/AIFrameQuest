@@ -24,6 +24,11 @@
 
 🔍 阶段命名逻辑：  
 类比地球生命起源初期，建立最原始的系统基础架构雏形</code></pre>
+        <!-- 添加视频 -->
+        <!-- <video controls class="version-video">
+          <source src="@/assets/videos/archean.mp4" type="video/mp4">
+          您的浏览器不支持视频播放。
+        </video> -->
       </div>
 
       <div class="version-card">
@@ -36,6 +41,11 @@
 
 🔍 阶段命名逻辑：  
 如同寒武纪生命大爆发，实现功能模块的快速迭代</code></pre>
+        <!-- 添加视频 -->
+        <!-- <video controls class="version-video">
+          <source src="@/assets/videos/cambrian.mp4" type="video/mp4">
+          您的浏览器不支持视频播放。
+        </video> -->
       </div>
 
       <div class="version-card">
@@ -50,6 +60,11 @@
 
 🔍 阶段命名逻辑：  
 对应奥陶纪生态复杂化，系统开始支撑多角色协作</code></pre>
+        <!-- 添加视频 -->
+        <!-- <video controls class="version-video">
+          <source src="@/assets/videos/ordovician.mp4" type="video/mp4">
+          您的浏览器不支持视频播放。
+        </video> -->
       </div>
 
       <div class="version-card">
@@ -64,6 +79,11 @@
 
 🔍 阶段命名逻辑：  
 象征人类文明成熟期，系统进入易用稳定阶段</code></pre>
+        <!-- 添加视频 -->
+        <!-- <video controls class="version-video">
+          <source src="@/assets/videos/holocene.mp4" type="video/mp4">
+          您的浏览器不支持视频播放。
+        </video> -->
       </div>
 
       <div class="version-card">
@@ -93,7 +113,14 @@ D --> E[智能辅助系统]
         <footer class="footer">
       <p><strong>AIFrameQuest: Ordovician-V2</strong></p>
       <p>图片来自于小红书、豆瓣。</p>
-      <p>如果想要申请添加词条可以联系 <a href="mailto:1966322816@qq.com">1966322816@qq.com</a></p>
+      <p>如果想要与团队联系可以发邮件到 <a href="mailto:aiframequest@gmail.com">aiframequest@gmail.com</a></p>
+
+            <!-- 添加提交建议的链接 -->
+      <div class="submit-suggestion-link">
+        <router-link to="/submit-suggestion" class="link-button">
+          点击我提交建议
+        </router-link>
+      </div>
     </footer>
   </div>
 </template>
@@ -207,5 +234,22 @@ code {
 
 .footer a:hover {
   text-decoration: underline;
+}
+
+.submit-suggestion-link {
+  margin-top: 20px;
+}
+
+
+
+
+
+.version-video {
+  width: 100%; /* 视频宽度占满父容器 */
+  max-width: 800px; /* 设置最大宽度，避免过大 */
+  height: auto; /* 高度自动调整，保持视频比例 */
+  margin: 20px auto; /* 居中对齐 */
+  border-radius: 8px; /* 添加圆角 */
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
 }
 </style>

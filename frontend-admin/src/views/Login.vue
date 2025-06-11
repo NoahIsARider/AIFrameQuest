@@ -7,10 +7,10 @@
           <el-input v-model="loginForm.id" placeholder="管理员ID" prefix-icon="el-icon-user"></el-input>
         </el-form-item>
         <el-form-item prop="email">
-          <el-input v-model="loginForm.email" placeholder="邮箱" prefix-icon="el-icon-message"></el-input>
+          <el-input v-model="loginForm.email" placeholder="邮箱" prefix-icon="Message"></el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input v-model="loginForm.password" type="password" placeholder="密码" prefix-icon="el-icon-lock" show-password></el-input>
+          <el-input v-model="loginForm.password" type="password" placeholder="密码" prefix-icon="Lock" show-password></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" :loading="loading" @click="handleLogin" class="login-button">登录</el-button>
@@ -25,6 +25,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import { Key } from '@element-plus/icons-vue'
 
 export default {
   name: 'LoginView',
@@ -95,6 +96,8 @@ export default {
   align-items: center;
   height: 100vh;
   background-color: #f5f7fa;
+  background:linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.0)),url('@/assets/images/background_noah.png') no-repeat center center;
+  background-size: cover;
 }
 
 .login-box {
@@ -108,7 +111,7 @@ export default {
 .login-box h2 {
   text-align: center;
   margin-bottom: 30px;
-  color: #409EFF;
+  color: #015ebc;
 }
 
 .login-form {
@@ -117,5 +120,6 @@ export default {
 
 .login-button {
   width: 100%;
+  background-color: #015ebc;
 }
 </style>

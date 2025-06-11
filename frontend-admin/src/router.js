@@ -44,6 +44,18 @@ const routes = [
         name: 'Comments',
         component: () => import('./views/Comments.vue'),
         meta: { requiresAuth: true }
+      },
+      {
+        path: 'entries-uncensored',
+        name: 'EntriesUncensored',
+        component: () => import('./views/EntriesUncensored.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'suggestions',
+        name: 'Suggestions',
+        component: () => import('./views/Suggestions.vue'),
+        meta: { requiresAuth: true }
       }
     ]
   }
