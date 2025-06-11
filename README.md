@@ -2,6 +2,11 @@
 
 一个基于 Flask 和 Vue 的现代化社区讨论平台，支持用户认证、内容管理、图像搜索等功能。
 
+![图片1](https://github.com/user-attachments/assets/5e0a1fcd-eeff-4e08-8438-7e7e75ec141e)
+
+![image](https://github.com/user-attachments/assets/0def83a1-4d93-419a-af91-b88c194304c1)
+
+
 ## 项目概述
 
 本项目是一个完整的全栈应用，包含以下组件：
