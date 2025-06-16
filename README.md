@@ -374,7 +374,13 @@ server {
 呼应人工智能时代，建立人机协同的内容治理边界  
 
 ```
-  
+## 🙌 贡献者
+感谢以下成员的杰出贡献（按字母顺序排列）：
+[@Dame](https://github.com/dame-byte)
+[@Echo](https://github.com/Echo301)
+[@Woodzidream](https://github.com/woodzidream)
+[@茨木托儿所](https://github.com/wwwTwilight)
+[@yixinD777](https://github.com/yixinD777)
 
 ## 许可证
 
