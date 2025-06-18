@@ -669,10 +669,11 @@ def submit_suggestion():
 
 # 启动应用
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
     with app.app_context():
         # 初始化图像搜索索引
         initialize_index()
         # 初始化文字搜图索引
         initialize_text_to_image_index()
+    app.run(debug=True, port=5000)
+
 
