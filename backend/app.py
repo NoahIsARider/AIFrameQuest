@@ -63,29 +63,29 @@ def load_json_data(filename):
         logger.error(f"加载{filename}数据失败: {str(e)}")
         return {}
 
-def load_admins():
-    """从JSON文件加载管理员数据"""
-    return load_json_data('admins')
+# def load_admins():
+#     """从JSON文件加载管理员数据"""
+#     return load_json_data('admins')
 
-def generate_admin_token(admin_id, email):
-    """生成JWT Token"""
-    payload = {
-        'admin_id': admin_id,
-        'email': email,
-        'exp': datetime.datetime.utcnow() + JWT_EXPIRATION_DELTA
-    }
-    return jwt.encode(payload, JWT_SECRET_KEY, algorithm='HS256')
+# def generate_admin_token(admin_id, email):
+#     """生成JWT Token"""
+#     payload = {
+#         'admin_id': admin_id,
+#         'email': email,
+#         'exp': datetime.datetime.utcnow() + JWT_EXPIRATION_DELTA
+#     }
+#     return jwt.encode(payload, JWT_SECRET_KEY, algorithm='HS256')
 
-# 装饰器
-def admin_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        # 检查请求头中的API密钥
-        api_key = request.headers.get('X-Admin-Key')
-        if api_key != ADMIN_API_KEY:
-            return jsonify({"status": "error", "message": "Unauthorized"}), 401
-        return f(*args, **kwargs)
-    return decorated_function
+# # 装饰器
+# def admin_required(f):
+#     @wraps(f)
+#     def decorated_function(*args, **kwargs):
+#         # 检查请求头中的API密钥
+#         api_key = request.headers.get('X-Admin-Key')
+#         if api_key != ADMIN_API_KEY:
+#             return jsonify({"status": "error", "message": "Unauthorized"}), 401
+#         return f(*args, **kwargs)
+#     return decorated_function
 
 def token_required(f):
     @wraps(f)
