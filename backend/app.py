@@ -53,15 +53,15 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-# 辅助函数
-def load_json_data(filename):
-    """从JSON文件加载数据"""
-    try:
-        with open(f'data/{filename}.json', 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except Exception as e:
-        logger.error(f"加载{filename}数据失败: {str(e)}")
-        return {}
+# # 辅助函数
+# def load_json_data(filename):
+#     """从JSON文件加载数据"""
+#     try:
+#         with open(f'data/{filename}.json', 'r', encoding='utf-8') as f:
+#             return json.load(f)
+#     except Exception as e:
+#         logger.error(f"加载{filename}数据失败: {str(e)}")
+#         return {}
 
 # def load_admins():
 #     """从JSON文件加载管理员数据"""
