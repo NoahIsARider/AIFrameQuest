@@ -5,7 +5,7 @@ from openai import OpenAI
 
 # ModelScope API配置
 MODELSCOPE_BASE_URL = 'https://api-inference.modelscope.cn/v1/'
-MODELSCOPE_API_KEY = 'efd050fb-5969-4eba-b043-da519ca84b94'
+MODELSCOPE_API_KEY = 'YOUR_API_KEY'
 
 # 初始化ModelScope客户端
 def get_modelscope_client():
