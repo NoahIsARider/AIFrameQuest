@@ -1,6 +1,6 @@
 from openai import OpenAI
 
-api_key = "zcIOocMYkZVDZsQJjBxn:qcyfUlgAxTMnVKOIxzTS"  # 替换为你的API Key
+api_key = "YOUR_API_KEY"  # 替换为你的API Key
 api_base = "https://spark-api-open.xf-yun.com/v2/"
 
 def get_spark_hint(prompt: str) -> str:
