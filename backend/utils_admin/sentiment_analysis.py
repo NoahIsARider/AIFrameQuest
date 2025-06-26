@@ -16,7 +16,7 @@ except ImportError:
 
 # 百度API密钥
 BAIDU_API_KEY = "Inb6acS4ywQGq4WLredZQ9bI"
-BAIDU_SECRET_KEY = "KHuLZdJczX3FTYw3ThINa43ublAFP17U"
+BAIDU_SECRET_KEY = "YOUR_API_KEY"
 
 # 初始化BERT模型（如果可用）
 if BERT_AVAILABLE:
