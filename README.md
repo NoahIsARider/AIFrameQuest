@@ -12,6 +12,18 @@ AIFrameQuest是一个基于 Flask 和 Vue 的现代化社区讨论平台，支�
 
 ![image](https://github.com/user-attachments/assets/0def83a1-4d93-419a-af91-b88c194304c1)
 
+## 🙌 设计团队
+感谢以下成员的杰出贡献（按字母顺序排列）：
+
+[@Dame](https://github.com/dame-byte)
+
+[@Echo](https://github.com/Echo301)
+
+[@Woodzidream](https://github.com/woodzidream)
+
+[@wwwTwilight](https://github.com/wwwTwilight)
+
+[@yixinD777](https://github.com/yixinD777)
 
 ## 🌌 项目概述
 
@@ -374,18 +386,7 @@ server {
 呼应人工智能时代，建立人机协同的内容治理边界  
 
 ```
-## 🙌 贡献者
-感谢以下成员的杰出贡献（按字母顺序排列）：
 
-[@Dame](https://github.com/dame-byte)
-
-[@Echo](https://github.com/Echo301)
-
-[@Woodzidream](https://github.com/woodzidream)
-
-[@wwwTwilight](https://github.com/wwwTwilight)
-
-[@yixinD777](https://github.com/yixinD777)
 
 ## ⚖️ 许可证
 
